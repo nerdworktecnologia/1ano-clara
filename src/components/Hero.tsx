@@ -1,5 +1,6 @@
 import { Lang, t } from "@/lib/i18n";
 import { EVENT_CONFIG } from "@/lib/eventConfig";
+import Bandeirinhas from "./Bandeirinhas";
 
 interface HeroProps {
   lang: Lang;
@@ -9,13 +10,20 @@ interface HeroProps {
 const Hero = ({ lang, onRSVPClick }: HeroProps) => {
   return (
     <section className="relative min-h-[80vh] flex flex-col items-center justify-center text-center px-4 py-16 overflow-hidden">
-      {/* Decorative elements */}
-      <div className="absolute top-10 left-10 w-16 h-16 rounded-full bg-secondary/40 animate-float" />
-      <div className="absolute top-20 right-16 w-10 h-10 rounded-full bg-primary/30 animate-float" style={{ animationDelay: "1s" }} />
-      <div className="absolute bottom-20 left-20 w-12 h-12 rounded-full bg-accent/50 animate-float" style={{ animationDelay: "0.5s" }} />
-      <div className="absolute bottom-32 right-10 w-8 h-8 rounded-full bg-secondary/30 animate-float" style={{ animationDelay: "1.5s" }} />
+      {/* Top bandeirinhas */}
+      <div className="absolute top-0 left-0 right-0">
+        <Bandeirinhas count={30} />
+      </div>
 
-      <div className="animate-fade-up relative z-10">
+      {/* Decorative elements - festive items */}
+      <div className="absolute top-16 left-8 text-4xl animate-sway" style={{ animationDelay: "0s" }}>🌽</div>
+      <div className="absolute top-24 right-12 text-3xl animate-sway" style={{ animationDelay: "0.5s" }}>🎆</div>
+      <div className="absolute bottom-20 left-16 text-3xl animate-sway" style={{ animationDelay: "1s" }}>🔥</div>
+      <div className="absolute bottom-32 right-8 text-4xl animate-sway" style={{ animationDelay: "1.5s" }}>🎶</div>
+      <div className="absolute top-40 left-1/4 text-2xl animate-float" style={{ animationDelay: "0.3s" }}>⭐</div>
+      <div className="absolute bottom-40 right-1/4 text-2xl animate-float" style={{ animationDelay: "0.8s" }}>🪗</div>
+
+      <div className="animate-fade-up relative z-10 mt-8">
         <p className="text-lg md:text-xl font-body text-muted-foreground mb-2">
           {t(lang, "heroSubtitle")}
         </p>
@@ -37,25 +45,13 @@ const Hero = ({ lang, onRSVPClick }: HeroProps) => {
           🕐 {EVENT_CONFIG.eventTime} &nbsp;|&nbsp; 📍 {EVENT_CONFIG.address.split(",")[0]}
         </p>
         <button onClick={onRSVPClick} className="btn-primary text-xl">
-          🎈 {t(lang, "confirmPresence")}
+          🎪 {t(lang, "confirmPresence")}
         </button>
       </div>
 
-      {/* Stars/sparkles */}
-      <div className="absolute inset-0 pointer-events-none">
-        {[...Array(6)].map((_, i) => (
-          <span
-            key={i}
-            className="absolute text-2xl animate-float opacity-30"
-            style={{
-              top: `${15 + Math.random() * 70}%`,
-              left: `${5 + Math.random() * 90}%`,
-              animationDelay: `${Math.random() * 3}s`,
-            }}
-          >
-            ✨
-          </span>
-        ))}
+      {/* Bottom bandeirinhas */}
+      <div className="absolute bottom-0 left-0 right-0">
+        <Bandeirinhas count={30} />
       </div>
     </section>
   );

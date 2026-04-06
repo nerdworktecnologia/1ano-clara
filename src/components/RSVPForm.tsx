@@ -36,11 +36,12 @@ const RSVPForm = ({ lang }: RSVPFormProps) => {
     setSubmitted(true);
 
     if (form.attending) {
+      // Festa junina confetti colors
       confetti({
         particleCount: 150,
         spread: 80,
         origin: { y: 0.6 },
-        colors: ["#7BBFEA", "#E8A0BF", "#F5D5A0", "#B5EAD7"],
+        colors: ["#CC3333", "#E6A817", "#D4731A", "#4D8033", "#3375B8", "#CC4488"],
       });
     }
   };
@@ -56,7 +57,7 @@ const RSVPForm = ({ lang }: RSVPFormProps) => {
     return (
       <section className="py-12 px-4" id="rsvp">
         <div className="max-w-lg mx-auto card-baby text-center animate-fade-up">
-          <div className="text-6xl mb-4">🎉</div>
+          <div className="text-6xl mb-4">🎪</div>
           <h2 className="section-title">{t(lang, "thankYouTitle")}</h2>
           <p className="text-muted-foreground font-body mb-6">{t(lang, "thankYouMsg")}</p>
           {form.attending && (
@@ -71,34 +72,34 @@ const RSVPForm = ({ lang }: RSVPFormProps) => {
 
   return (
     <section className="py-12 px-4" id="rsvp">
-      <h2 className="section-title text-center">{t(lang, "rsvpTitle")}</h2>
+      <h2 className="section-title text-center">🎪 {t(lang, "rsvpTitle")}</h2>
       <form onSubmit={handleSubmit} className="max-w-lg mx-auto card-baby space-y-5">
         <div>
-          <label className="block text-sm font-semibold font-body mb-1">{t(lang, "fullName")} *</label>
+          <label className="block text-sm font-bold font-body mb-1">{t(lang, "fullName")} *</label>
           <input
             type="text"
             value={form.name}
             onChange={(e) => setForm({ ...form, name: e.target.value })}
-            className={`w-full px-4 py-3 rounded-xl border bg-background font-body focus:outline-none focus:ring-2 focus:ring-primary ${errors.name ? "border-destructive" : "border-input"}`}
+            className={`w-full px-4 py-3 rounded-lg border bg-background font-body focus:outline-none focus:ring-2 focus:ring-primary ${errors.name ? "border-destructive" : "border-input"}`}
             maxLength={100}
           />
           {errors.name && <p className="text-destructive text-xs mt-1">{t(lang, "required")}</p>}
         </div>
 
         <div>
-          <label className="block text-sm font-semibold font-body mb-1">{t(lang, "attending")} *</label>
+          <label className="block text-sm font-bold font-body mb-1">{t(lang, "attending")} *</label>
           <div className="flex gap-4">
             <button
               type="button"
               onClick={() => setForm({ ...form, attending: true })}
-              className={`flex-1 py-3 rounded-xl font-body font-semibold transition-all ${form.attending ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}
+              className={`flex-1 py-3 rounded-lg font-body font-bold transition-all ${form.attending ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}
             >
               ✅ {t(lang, "yes")}
             </button>
             <button
               type="button"
               onClick={() => setForm({ ...form, attending: false })}
-              className={`flex-1 py-3 rounded-xl font-body font-semibold transition-all ${!form.attending ? "bg-destructive text-destructive-foreground" : "bg-muted text-muted-foreground"}`}
+              className={`flex-1 py-3 rounded-lg font-body font-bold transition-all ${!form.attending ? "bg-destructive text-destructive-foreground" : "bg-muted text-muted-foreground"}`}
             >
               ❌ {t(lang, "no")}
             </button>
@@ -106,41 +107,39 @@ const RSVPForm = ({ lang }: RSVPFormProps) => {
         </div>
 
         {form.attending && (
-          <>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-semibold font-body mb-1">{t(lang, "adults")}</label>
-                <input
-                  type="number"
-                  min={1}
-                  max={20}
-                  value={form.adults}
-                  onChange={(e) => setForm({ ...form, adults: Number(e.target.value) })}
-                  className="w-full px-4 py-3 rounded-xl border border-input bg-background font-body focus:outline-none focus:ring-2 focus:ring-primary"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-semibold font-body mb-1">{t(lang, "children")}</label>
-                <input
-                  type="number"
-                  min={0}
-                  max={20}
-                  value={form.children}
-                  onChange={(e) => setForm({ ...form, children: Number(e.target.value) })}
-                  className="w-full px-4 py-3 rounded-xl border border-input bg-background font-body focus:outline-none focus:ring-2 focus:ring-primary"
-                />
-              </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-bold font-body mb-1">{t(lang, "adults")}</label>
+              <input
+                type="number"
+                min={1}
+                max={20}
+                value={form.adults}
+                onChange={(e) => setForm({ ...form, adults: Number(e.target.value) })}
+                className="w-full px-4 py-3 rounded-lg border border-input bg-background font-body focus:outline-none focus:ring-2 focus:ring-primary"
+              />
             </div>
-          </>
+            <div>
+              <label className="block text-sm font-bold font-body mb-1">{t(lang, "children")}</label>
+              <input
+                type="number"
+                min={0}
+                max={20}
+                value={form.children}
+                onChange={(e) => setForm({ ...form, children: Number(e.target.value) })}
+                className="w-full px-4 py-3 rounded-lg border border-input bg-background font-body focus:outline-none focus:ring-2 focus:ring-primary"
+              />
+            </div>
+          </div>
         )}
 
         <div>
-          <label className="block text-sm font-semibold font-body mb-1">{t(lang, "phone")} *</label>
+          <label className="block text-sm font-bold font-body mb-1">{t(lang, "phone")} *</label>
           <input
             type="tel"
             value={form.phone}
             onChange={(e) => setForm({ ...form, phone: e.target.value })}
-            className={`w-full px-4 py-3 rounded-xl border bg-background font-body focus:outline-none focus:ring-2 focus:ring-primary ${errors.phone ? "border-destructive" : "border-input"}`}
+            className={`w-full px-4 py-3 rounded-lg border bg-background font-body focus:outline-none focus:ring-2 focus:ring-primary ${errors.phone ? "border-destructive" : "border-input"}`}
             placeholder="+55 11 99999-9999"
             maxLength={20}
           />
@@ -148,18 +147,18 @@ const RSVPForm = ({ lang }: RSVPFormProps) => {
         </div>
 
         <div>
-          <label className="block text-sm font-semibold font-body mb-1">{t(lang, "notes")}</label>
+          <label className="block text-sm font-bold font-body mb-1">{t(lang, "notes")}</label>
           <textarea
             value={form.notes}
             onChange={(e) => setForm({ ...form, notes: e.target.value })}
-            className="w-full px-4 py-3 rounded-xl border border-input bg-background font-body focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+            className="w-full px-4 py-3 rounded-lg border border-input bg-background font-body focus:outline-none focus:ring-2 focus:ring-primary resize-none"
             rows={3}
             maxLength={500}
           />
         </div>
 
         <button type="submit" className="btn-primary w-full text-center">
-          🎈 {t(lang, "submit")}
+          🎪 {t(lang, "submit")}
         </button>
       </form>
     </section>
