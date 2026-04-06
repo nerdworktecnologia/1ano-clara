@@ -6,11 +6,13 @@ import {
   getGuests,
   saveGuest,
   importGuests,
+  updateRSVP,
+  deleteRSVP,
   markInvited,
   type RSVPEntry,
   type GuestEntry,
 } from "@/lib/storage";
-import { Download, Upload, Send, Users, UserCheck, UserX, ArrowLeft } from "lucide-react";
+import { Download, Upload, Send, Users, UserCheck, UserX, ArrowLeft, Pencil, Trash2, Check, X } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const AdminPage = () => {
@@ -18,6 +20,14 @@ const AdminPage = () => {
   const [password, setPassword] = useState("");
   const [lang, setLang] = useState<Lang>("pt");
   const [rsvps, setRsvps] = useState<RSVPEntry[]>([]);
+  const [editingRsvpId, setEditingRsvpId] = useState<string | null>(null);
+  const [editingRsvp, setEditingRsvp] = useState<{
+    name: string;
+    attending: boolean;
+    adults: number;
+    children: number;
+    phone: string;
+  } | null>(null);
   const [guests, setGuests] = useState<GuestEntry[]>([]);
   const [newName, setNewName] = useState("");
   const [newPhone, setNewPhone] = useState("");
@@ -89,6 +99,43 @@ const AdminPage = () => {
     a.href = URL.createObjectURL(blob);
     a.download = "rsvp_respostas.csv";
     a.click();
+  };
+
+  const startEditRsvp = (r: RSVPEntry) => {
+    setEditingRsvpId(r.id);
+    setEditingRsvp({
+      name: r.name,
+      attending: r.attending,
+      adults: r.adults,
+      children: r.children,
+      phone: r.phone,
+    });
+  };
+
+  const cancelEditRsvp = () => {
+    setEditingRsvpId(null);
+    setEditingRsvp(null);
+  };
+
+  const saveEditRsvp = (id: string) => {
+    if (!editingRsvp) return;
+    updateRSVP(id, {
+      name: editingRsvp.name,
+      attending: editingRsvp.attending,
+      adults: editingRsvp.adults,
+      children: editingRsvp.children,
+      phone: editingRsvp.phone,
+    });
+    setRsvps(getRSVPs());
+    cancelEditRsvp();
+  };
+
+  const removeRsvp = (id: string) => {
+    const ok = window.confirm("Remover este RSVP?");
+    if (!ok) return;
+    deleteRSVP(id);
+    setRsvps(getRSVPs());
+    if (editingRsvpId === id) cancelEditRsvp();
   };
 
   const confirmed = rsvps.filter((r) => r.attending);
@@ -171,18 +218,130 @@ const AdminPage = () => {
                     <th className="text-left py-2 px-2">{t(lang, "adults")}</th>
                     <th className="text-left py-2 px-2">{t(lang, "children")}</th>
                     <th className="text-left py-2 px-2">{t(lang, "phone")}</th>
+                    <th className="text-right py-2 px-2">Ações</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {rsvps.map((r) => (
-                    <tr key={r.id} className="border-b border-border/50">
-                      <td className="py-2 px-2">{r.name}</td>
-                      <td className="py-2 px-2">{r.attending ? "✅" : "❌"}</td>
-                      <td className="py-2 px-2">{r.adults}</td>
-                      <td className="py-2 px-2">{r.children}</td>
-                      <td className="py-2 px-2">{r.phone}</td>
-                    </tr>
-                  ))}
+                  {rsvps.map((r) => {
+                    const isEditing = editingRsvpId === r.id && !!editingRsvp;
+                    return (
+                      <tr key={r.id} className="border-b border-border/50">
+                        <td className="py-2 px-2">
+                          {isEditing ? (
+                            <input
+                              value={editingRsvp.name}
+                              onChange={(e) => setEditingRsvp({ ...editingRsvp, name: e.target.value })}
+                              className="w-full px-3 py-2 rounded-lg border border-input bg-background font-body"
+                              maxLength={100}
+                            />
+                          ) : (
+                            r.name
+                          )}
+                        </td>
+                        <td className="py-2 px-2">
+                          {isEditing ? (
+                            <select
+                              value={editingRsvp.attending ? "yes" : "no"}
+                              onChange={(e) => setEditingRsvp({ ...editingRsvp, attending: e.target.value === "yes" })}
+                              className="px-3 py-2 rounded-lg border border-input bg-background font-body"
+                            >
+                              <option value="yes">✅</option>
+                              <option value="no">❌</option>
+                            </select>
+                          ) : (
+                            (r.attending ? "✅" : "❌")
+                          )}
+                        </td>
+                        <td className="py-2 px-2">
+                          {isEditing ? (
+                            <input
+                              type="number"
+                              min={0}
+                              max={30}
+                              value={editingRsvp.adults}
+                              onChange={(e) => setEditingRsvp({ ...editingRsvp, adults: Number(e.target.value) })}
+                              className="w-24 px-3 py-2 rounded-lg border border-input bg-background font-body"
+                            />
+                          ) : (
+                            r.adults
+                          )}
+                        </td>
+                        <td className="py-2 px-2">
+                          {isEditing ? (
+                            <input
+                              type="number"
+                              min={0}
+                              max={30}
+                              value={editingRsvp.children}
+                              onChange={(e) => setEditingRsvp({ ...editingRsvp, children: Number(e.target.value) })}
+                              className="w-24 px-3 py-2 rounded-lg border border-input bg-background font-body"
+                            />
+                          ) : (
+                            r.children
+                          )}
+                        </td>
+                        <td className="py-2 px-2">
+                          {isEditing ? (
+                            <input
+                              value={editingRsvp.phone}
+                              onChange={(e) => setEditingRsvp({ ...editingRsvp, phone: e.target.value })}
+                              className="w-full px-3 py-2 rounded-lg border border-input bg-background font-body"
+                              maxLength={30}
+                            />
+                          ) : (
+                            r.phone
+                          )}
+                        </td>
+                        <td className="py-2 px-2">
+                          <div className="flex justify-end gap-2">
+                            {isEditing ? (
+                              <>
+                                <button
+                                  type="button"
+                                  onClick={() => saveEditRsvp(r.id)}
+                                  className="p-2 rounded-lg hover:bg-muted"
+                                  aria-label="Salvar"
+                                  title="Salvar"
+                                >
+                                  <Check className="w-4 h-4" />
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={cancelEditRsvp}
+                                  className="p-2 rounded-lg hover:bg-muted"
+                                  aria-label="Cancelar"
+                                  title="Cancelar"
+                                >
+                                  <X className="w-4 h-4" />
+                                </button>
+                              </>
+                            ) : (
+                              <>
+                                <button
+                                  type="button"
+                                  onClick={() => startEditRsvp(r)}
+                                  className="p-2 rounded-lg hover:bg-muted"
+                                  aria-label="Editar"
+                                  title="Editar"
+                                >
+                                  <Pencil className="w-4 h-4" />
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => removeRsvp(r.id)}
+                                  className="p-2 rounded-lg hover:bg-muted"
+                                  aria-label="Remover"
+                                  title="Remover"
+                                >
+                                  <Trash2 className="w-4 h-4 text-destructive" />
+                                </button>
+                              </>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>

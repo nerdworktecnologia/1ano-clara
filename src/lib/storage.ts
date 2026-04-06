@@ -71,16 +71,37 @@ export function getRSVPs(): RSVPEntry[] {
   return safeGet<RSVPEntry[]>(RSVP_KEY, []);
 }
 
+export function updateRSVP(
+  id: string,
+  patch: Partial<Omit<RSVPEntry, "id" | "createdAt">>,
+): RSVPEntry | undefined {
+  const entries = getRSVPs();
+  const idx = entries.findIndex((e) => e.id === id);
+  if (idx === -1) return;
+  const updated: RSVPEntry = { ...entries[idx], ...patch };
+  entries[idx] = updated;
+  safeSet(RSVP_KEY, entries);
+  return updated;
+}
+
+export function deleteRSVP(id: string) {
+  const entries = getRSVPs();
+  const next = entries.filter((e) => e.id !== id);
+  safeSet(RSVP_KEY, next);
+}
+
 export function getGuests(): GuestEntry[] {
-  const list = safeGet<GuestEntry[]>(GUESTS_KEY, []);
-  return list.map((g: any) => ({
-    id: g.id,
-    name: g.name,
-    phone: g.phone,
-    lang: g.lang === "en" ? "en" : "pt",
-    category: g.category === "child" ? "child" : "adult",
-    invited: !!g.invited,
-  }));
+  const list = safeGet<unknown[]>(GUESTS_KEY, []);
+  return list.map((g) => {
+    const obj: Record<string, unknown> = typeof g === "object" && g !== null ? (g as Record<string, unknown>) : {};
+    const id = typeof obj.id === "string" ? obj.id : generateId();
+    const name = typeof obj.name === "string" ? obj.name : "";
+    const phone = typeof obj.phone === "string" ? obj.phone : "";
+    const lang = obj.lang === "en" ? "en" : "pt";
+    const category = obj.category === "child" ? "child" : "adult";
+    const invited = !!obj.invited;
+    return { id, name, phone, lang, category, invited };
+  });
 }
 
 export function saveGuest(entry: Omit<GuestEntry, "id" | "invited">): GuestEntry {
