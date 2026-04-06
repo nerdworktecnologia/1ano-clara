@@ -7,6 +7,7 @@ import EventDetails from "@/components/EventDetails";
 import RSVPForm from "@/components/RSVPForm";
 import FloatingWhatsApp from "@/components/FloatingWhatsApp";
 import LangToggle from "@/components/LangToggle";
+import Bandeirinhas from "@/components/Bandeirinhas";
 
 const Index = () => {
   const [searchParams] = useSearchParams();
@@ -21,11 +22,15 @@ const Index = () => {
     <div className="min-h-screen bg-background overflow-hidden">
       <LangToggle lang={lang} onToggle={() => setLang(lang === "pt" ? "en" : "pt")} />
       <Hero lang={lang} onRSVPClick={scrollToRSVP} />
+      <Bandeirinhas count={25} />
       <Countdown lang={lang} />
+      <Bandeirinhas count={25} />
       <EventDetails lang={lang} />
+      <Bandeirinhas count={25} />
       <RSVPForm lang={lang} />
       <footer className="text-center py-8 text-muted-foreground text-sm font-body">
-        Made with 💖
+        <Bandeirinhas count={25} />
+        <p className="mt-4">Feito com 🔥 e 💖</p>
       </footer>
       <FloatingWhatsApp />
     </div>

@@ -68,8 +68,8 @@ export default {
         sm: "calc(var(--radius) - 4px)",
       },
       fontFamily: {
-        heading: ["Pacifico", "cursive"],
-        body: ["Quicksand", "sans-serif"],
+        heading: ["Caveat", "cursive"],
+        body: ["Baloo 2", "cursive"],
       },
       keyframes: {
         "accordion-down": {
