@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Lang, t } from "@/lib/i18n";
 import { EVENT_CONFIG } from "@/lib/eventConfig";
 import { saveRSVP } from "@/lib/storage";
+import { normalizeWhatsAppNumber } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/use-mobile";
 import confetti from "canvas-confetti";
 
 interface RSVPFormProps {
@@ -9,6 +11,7 @@ interface RSVPFormProps {
 }
 
 const RSVPForm = ({ lang }: RSVPFormProps) => {
+  const isMobile = useIsMobile();
   const [form, setForm] = useState({
     name: "",
     attending: true,
@@ -36,6 +39,18 @@ const RSVPForm = ({ lang }: RSVPFormProps) => {
     setSubmitted(true);
 
     if (form.attending) {
+      try {
+        if (isMobile) {
+          window.location.href = whatsappUrl;
+        } else {
+          window.open(whatsappUrl, "_blank", "noopener,noreferrer");
+        }
+      } catch {
+        window.location.href = whatsappUrl;
+      }
+    }
+
+    if (form.attending) {
       // Festa junina confetti colors
       confetti({
         particleCount: 150,
@@ -51,7 +66,7 @@ const RSVPForm = ({ lang }: RSVPFormProps) => {
     .replace("{adults}", String(form.adults))
     .replace("{children}", String(form.children));
 
-  const whatsappUrl = `https://wa.me/${EVENT_CONFIG.whatsappNumber}?text=${encodeURIComponent(whatsappMsg)}`;
+  const whatsappUrl = `https://wa.me/${normalizeWhatsAppNumber(EVENT_CONFIG.whatsappNumber)}?text=${encodeURIComponent(whatsappMsg)}`;
 
   if (submitted) {
     return (

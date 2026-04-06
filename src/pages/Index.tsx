@@ -8,6 +8,7 @@ import RSVPForm from "@/components/RSVPForm";
 import FloatingWhatsApp from "@/components/FloatingWhatsApp";
 import LangToggle from "@/components/LangToggle";
 import Bandeirinhas from "@/components/Bandeirinhas";
+import Fogueira from "@/components/Fogueira";
 
 const Index = () => {
   const [searchParams] = useSearchParams();
@@ -30,7 +31,10 @@ const Index = () => {
       <RSVPForm lang={lang} />
       <footer className="text-center py-8 text-muted-foreground text-sm font-body">
         <Bandeirinhas count={25} />
-        <p className="mt-4">Feito com 🔥 e 💖</p>
+        <div className="mt-6 flex justify-center">
+          <Fogueira />
+        </div>
+        <p className="mt-4">Desenvolvido por Caroline Brand Studio * Feito com 🔥 e 💖</p>
       </footer>
       <FloatingWhatsApp />
     </div>
