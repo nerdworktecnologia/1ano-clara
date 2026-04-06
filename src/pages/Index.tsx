@@ -34,7 +34,7 @@ const Index = () => {
         <div className="mt-6 flex justify-center">
           <Fogueira />
         </div>
-        <p className="mt-4">Desenvolvido por Caroline Brand Studio * Feito com 🔥 e 💖</p>
+        <p className="mt-4">Desenvolvido por Caroline Brand Studio * Feito com 💖</p>
       </footer>
       <FloatingWhatsApp />
     </div>
