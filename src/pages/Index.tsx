@@ -1,16 +1,35 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useState } from "react";
+import { useSearchParams } from "react-router-dom";
+import { Lang } from "@/lib/i18n";
+import Hero from "@/components/Hero";
+import Countdown from "@/components/Countdown";
+import EventDetails from "@/components/EventDetails";
+import RSVPForm from "@/components/RSVPForm";
+import FloatingWhatsApp from "@/components/FloatingWhatsApp";
+import LangToggle from "@/components/LangToggle";
 
-// IMPORTANT: Fully REPLACE this with your own code
-const PlaceholderIndex = () => {
-  // PLACEHOLDER: Replace this entire return statement with the user's app.
-  // The inline background color is intentionally not part of the design system.
+const Index = () => {
+  const [searchParams] = useSearchParams();
+  const initialLang = (searchParams.get("lang") as Lang) || "pt";
+  const [lang, setLang] = useState<Lang>(initialLang);
+
+  const scrollToRSVP = () => {
+    document.getElementById("rsvp")?.scrollIntoView({ behavior: "smooth" });
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center" style={{ backgroundColor: '#fcfbf8' }}>
-      <img data-lovable-blank-page-placeholder="REMOVE_THIS" src="/placeholder.svg" alt="Your app will live here!" />
+    <div className="min-h-screen bg-background overflow-hidden">
+      <LangToggle lang={lang} onToggle={() => setLang(lang === "pt" ? "en" : "pt")} />
+      <Hero lang={lang} onRSVPClick={scrollToRSVP} />
+      <Countdown lang={lang} />
+      <EventDetails lang={lang} />
+      <RSVPForm lang={lang} />
+      <footer className="text-center py-8 text-muted-foreground text-sm font-body">
+        Made with 💖
+      </footer>
+      <FloatingWhatsApp />
     </div>
   );
 };
-
-const Index = PlaceholderIndex;
 
 export default Index;
