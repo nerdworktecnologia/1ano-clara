@@ -21,6 +21,8 @@ const AdminPage = () => {
   const [guests, setGuests] = useState<GuestEntry[]>([]);
   const [newName, setNewName] = useState("");
   const [newPhone, setNewPhone] = useState("");
+  const [newLang, setNewLang] = useState<Lang>("pt");
+  const [newCategory, setNewCategory] = useState<"adult" | "child">("adult");
   const fileRef = useRef<HTMLInputElement>(null);
 
   const login = () => {
@@ -33,10 +35,12 @@ const AdminPage = () => {
 
   const addGuest = () => {
     if (!newName.trim() || !newPhone.trim()) return;
-    const g = saveGuest({ name: newName.trim(), phone: newPhone.trim() });
+    const g = saveGuest({ name: newName.trim(), phone: newPhone.trim(), lang: newLang, category: newCategory });
     setGuests((prev) => [...prev, g]);
     setNewName("");
     setNewPhone("");
+    setNewLang("pt");
+    setNewCategory("adult");
   };
 
   const handleImport = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -45,11 +49,19 @@ const AdminPage = () => {
     const reader = new FileReader();
     reader.onload = (ev) => {
       const text = ev.target?.result as string;
-      const lines = text.split("\n").filter(Boolean);
-      const list = lines.map((line) => {
-        const [name, phone] = line.split(",").map((s) => s.trim());
-        return { name, phone };
-      }).filter((g) => g.name && g.phone);
+      const lines = text.split(/\r?\n/).filter((l) => l.trim().length > 0);
+      const header = lines[0];
+      const delim = header.includes(";") ? ";" : ",";
+      const data = header.toLowerCase().includes("nome") ? lines.slice(1) : lines;
+      const list = data
+        .map((line) => {
+          const parts = line.split(delim).map((s) => s.trim());
+          const [name, phone, langRaw, categoryRaw] = parts;
+          const lang = (langRaw || "pt").toLowerCase() === "en" ? "en" : "pt";
+          const category = (categoryRaw || "adulto").toLowerCase().startsWith("crian") ? "child" : "adult";
+          return { name, phone, lang, category };
+        })
+        .filter((g) => g.name && g.phone);
       importGuests(list);
       setGuests(getGuests());
     };
@@ -57,9 +69,10 @@ const AdminPage = () => {
   };
 
   const sendInvite = (guest: GuestEntry) => {
-    const msg = t(lang, "inviteMsg")
+    const gLang: Lang = guest.lang;
+    const msg = t(gLang, "inviteMsg")
       .replace("{name}", guest.name)
-      .replace("{link}", `${EVENT_CONFIG.siteUrl}?lang=${lang}`);
+      .replace("{link}", `${EVENT_CONFIG.siteUrl}?lang=${gLang}`);
     const url = `https://wa.me/${guest.phone.replace(/\D/g, "")}?text=${encodeURIComponent(msg)}`;
     window.open(url, "_blank");
     markInvited(guest.id);
@@ -195,6 +208,26 @@ const AdminPage = () => {
               className="flex-1 px-4 py-2 rounded-xl border border-input bg-background font-body focus:outline-none focus:ring-2 focus:ring-primary"
               maxLength={20}
             />
+            <select
+              value={newLang}
+              onChange={(e) => setNewLang(e.target.value as Lang)}
+              className="px-3 py-2 rounded-xl border border-input bg-background font-body"
+              aria-label="Idioma"
+              title="Idioma"
+            >
+              <option value="pt">pt</option>
+              <option value="en">en</option>
+            </select>
+            <select
+              value={newCategory}
+              onChange={(e) => setNewCategory(e.target.value as "adult" | "child")}
+              className="px-3 py-2 rounded-xl border border-input bg-background font-body"
+              aria-label="Tipo"
+              title="Tipo"
+            >
+              <option value="adult">Adulto</option>
+              <option value="child">Criança</option>
+            </select>
             <button onClick={addGuest} className="btn-primary py-2 text-sm">
               {t(lang, "addGuest")}
             </button>
@@ -220,6 +253,7 @@ const AdminPage = () => {
                   <div>
                     <span className="font-semibold font-body">{g.name}</span>
                     <span className="text-muted-foreground text-sm ml-2">{g.phone}</span>
+                    <span className="text-muted-foreground text-xs ml-2">[{g.lang} · {g.category === "child" ? "Criança" : "Adulto"}]</span>
                     {g.invited && <span className="ml-2 text-xs text-success">✓ Enviado</span>}
                   </div>
                   {!g.invited && (

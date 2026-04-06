@@ -13,6 +13,8 @@ export interface GuestEntry {
   id: string;
   name: string;
   phone: string;
+  lang: "pt" | "en";
+  category: "adult" | "child";
   invited: boolean;
 }
 
@@ -70,7 +72,15 @@ export function getRSVPs(): RSVPEntry[] {
 }
 
 export function getGuests(): GuestEntry[] {
-  return safeGet<GuestEntry[]>(GUESTS_KEY, []);
+  const list = safeGet<GuestEntry[]>(GUESTS_KEY, []);
+  return list.map((g: any) => ({
+    id: g.id,
+    name: g.name,
+    phone: g.phone,
+    lang: g.lang === "en" ? "en" : "pt",
+    category: g.category === "child" ? "child" : "adult",
+    invited: !!g.invited,
+  }));
 }
 
 export function saveGuest(entry: Omit<GuestEntry, "id" | "invited">): GuestEntry {
@@ -81,11 +91,14 @@ export function saveGuest(entry: Omit<GuestEntry, "id" | "invited">): GuestEntry
   return newGuest;
 }
 
-export function importGuests(list: { name: string; phone: string }[]) {
+export function importGuests(list: { name: string; phone: string; lang?: string; category?: string }[]) {
   const guests = getGuests();
   const newGuests = list.map((g) => ({
-    ...g,
     id: generateId(),
+    name: g.name,
+    phone: g.phone,
+    lang: g.lang === "en" ? "en" : "pt",
+    category: g.category === "child" ? "child" : "adult",
     invited: false,
   }));
   safeSet(GUESTS_KEY, [...guests, ...newGuests]);
