@@ -62,6 +62,7 @@ const RSVPForm = ({ lang }: RSVPFormProps) => {
   };
 
   const whatsappMsg = t(lang, "whatsAppMsg")
+    .replace("{responsible}", form.name.trim())
     .replace("{name}", EVENT_CONFIG.childName)
     .replace("{adults}", String(form.adults))
     .replace("{children}", String(form.children));
