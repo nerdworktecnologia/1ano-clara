@@ -5,7 +5,6 @@ import Hero from "@/components/Hero";
 import Countdown from "@/components/Countdown";
 import EventDetails from "@/components/EventDetails";
 import RSVPForm from "@/components/RSVPForm";
-import FloatingWhatsApp from "@/components/FloatingWhatsApp";
 import LangToggle from "@/components/LangToggle";
 import Bandeirinhas from "@/components/Bandeirinhas";
 import Fogueira from "@/components/Fogueira";
@@ -36,7 +35,6 @@ const Index = () => {
         </div>
         <p className="mt-4">Desenvolvido por Caroline Brand Studio * Feito com 💖</p>
       </footer>
-      <FloatingWhatsApp />
     </div>
   );
 };
