@@ -110,7 +110,7 @@
   .hero-bg {
     position: absolute;
     inset: 0;
-    background-image: url("/bg-inicio.jpg"), url("/bg-inicio.png"), radial-gradient(circle at 20% 10%, hsl(var(--junina-straw) / 0.5) 0%, hsl(var(--background)) 55%);
+    background-image: url("/bg-inicio.jpg"), url("/bg-inicio.jpg.jpeg"), url("/bg-inicio.png"), radial-gradient(circle at 20% 10%, hsl(var(--junina-straw) / 0.5) 0%, hsl(var(--background)) 55%);
     background-size: cover;
     background-position: center;
     opacity: 0.12;
