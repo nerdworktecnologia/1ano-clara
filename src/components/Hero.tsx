@@ -10,6 +10,7 @@ interface HeroProps {
 const Hero = ({ lang, onRSVPClick }: HeroProps) => {
   return (
     <section className="relative min-h-[80vh] flex flex-col items-center justify-center text-center px-4 py-16 overflow-hidden">
+      <div className="hero-bg" aria-hidden="true" />
       {/* Top bandeirinhas */}
       <div className="absolute top-0 left-0 right-0">
         <Bandeirinhas count={30} />

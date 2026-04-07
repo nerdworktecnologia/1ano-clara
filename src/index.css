@@ -107,6 +107,25 @@
            shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-110 cursor-pointer;
   }
 
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    background-image: url("/bg-inicio.jpg");
+    background-size: cover;
+    background-position: center;
+    opacity: 0.12;
+    filter: blur(0.5px);
+    transform: scale(1.03);
+    pointer-events: none;
+  }
+
+  .hero-bg::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, hsl(var(--background) / 0.75) 0%, hsl(var(--background) / 0.92) 45%, hsl(var(--background) / 1) 100%);
+  }
+
   .fogueira {
     position: relative;
     width: 128px;
