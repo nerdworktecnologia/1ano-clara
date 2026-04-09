@@ -3,7 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import { Lang } from "@/lib/i18n";
 import Hero from "@/components/Hero";
 import Countdown from "@/components/Countdown";
-import EventDetails from "@/components/EventDetails";
+import EventDetails, { GiftsSection } from "@/components/EventDetails";
 import RSVPForm from "@/components/RSVPForm";
 import LangToggle from "@/components/LangToggle";
 import Bandeirinhas from "@/components/Bandeirinhas";
@@ -26,6 +26,8 @@ const Index = () => {
       <Countdown lang={lang} />
       <Bandeirinhas count={25} />
       <EventDetails lang={lang} />
+      <Bandeirinhas count={25} />
+      <GiftsSection lang={lang} />
       <Bandeirinhas count={25} />
       <RSVPForm lang={lang} />
       <footer className="text-center py-8 text-muted-foreground text-sm font-body">
