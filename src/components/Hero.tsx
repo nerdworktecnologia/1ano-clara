@@ -29,11 +29,8 @@ const Hero = ({ lang, onRSVPClick }: HeroProps) => {
           {t(lang, "heroSubtitle")}
         </p>
         <h1 className="text-5xl md:text-7xl font-heading text-primary mb-4 animate-bounce-soft">
-          {t(lang, "heroAge")}
+          {EVENT_CONFIG.eventName}
         </h1>
-        <p className="text-4xl md:text-6xl font-heading text-foreground mb-8">
-          {EVENT_CONFIG.childName}
-        </p>
         <p className="text-muted-foreground font-body text-base md:text-lg mb-2">
           📅 {new Date(EVENT_CONFIG.eventDate).toLocaleDateString(lang === "pt" ? "pt-BR" : "en-US", {
             weekday: "long",

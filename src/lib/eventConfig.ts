@@ -1,4 +1,5 @@
 export const EVENT_CONFIG = {
+  eventName: "Arraiá da Clara",
   childName: "Clara",
   eventDate: "2026-06-20T13:00:00",
   eventTime: "13:00",
