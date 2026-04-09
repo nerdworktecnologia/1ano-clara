@@ -113,7 +113,7 @@
     background-image: url("/bg-arraia.jpg"), url("/bg-inicio.jpg"), url("/bg-inicio.png"), radial-gradient(circle at 20% 10%, hsl(var(--junina-straw) / 0.5) 0%, hsl(var(--background)) 55%);
     background-size: cover;
     background-position: center;
-    opacity: 0.22;
+    opacity: 0.28;
     filter: blur(0.3px);
     transform: scale(1.03);
     pointer-events: none;
@@ -123,7 +123,9 @@
     content: "";
     position: absolute;
     inset: 0;
-    background: linear-gradient(180deg, hsl(var(--background) / 0.45) 0%, hsl(var(--background) / 0.65) 45%, hsl(var(--background) / 0.85) 100%);
+    background:
+      linear-gradient(180deg, hsl(0 0% 0% / 0.28) 0%, hsl(0 0% 0% / 0.18) 45%, hsl(0 0% 0% / 0.1) 100%),
+      linear-gradient(180deg, hsl(var(--background) / 0.25) 0%, hsl(var(--background) / 0.45) 45%, hsl(var(--background) / 0.6) 100%);
   }
 
   .fogueira {
