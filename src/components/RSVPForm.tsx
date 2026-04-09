@@ -22,6 +22,7 @@ const RSVPForm = ({ lang }: RSVPFormProps) => {
   });
   const [submitted, setSubmitted] = useState(false);
   const [errors, setErrors] = useState<Record<string, boolean>>({});
+  const [submitError, setSubmitError] = useState(false);
 
   const validate = () => {
     const e: Record<string, boolean> = {};
@@ -35,8 +36,14 @@ const RSVPForm = ({ lang }: RSVPFormProps) => {
     e.preventDefault();
     if (!validate()) return;
 
-    saveRSVP(form);
-    setSubmitted(true);
+    try {
+      saveRSVP(form);
+      setSubmitted(true);
+      setSubmitError(false);
+    } catch {
+      setSubmitError(true);
+      return;
+    }
 
     if (form.attending) {
       try {
@@ -68,6 +75,11 @@ const RSVPForm = ({ lang }: RSVPFormProps) => {
     .replace("{children}", String(form.children));
 
   const whatsappUrl = `https://wa.me/${normalizeWhatsAppNumber(EVENT_CONFIG.whatsappNumber)}?text=${encodeURIComponent(whatsappMsg)}`;
+  const supportNumber = "5521997914496";
+  const supportMsg = t(lang, "rsvpSupportMsg")
+    .replace("{responsible}", form.name.trim() || "-")
+    .replace("{phone}", form.phone.trim() || "-");
+  const supportUrl = `https://wa.me/${normalizeWhatsAppNumber(supportNumber)}?text=${encodeURIComponent(supportMsg)}`;
 
   if (submitted) {
     return (
@@ -176,6 +188,15 @@ const RSVPForm = ({ lang }: RSVPFormProps) => {
         <button type="submit" className="btn-primary w-full text-center">
           🎪 {t(lang, "submit")}
         </button>
+
+        {(submitError || Object.keys(errors).length > 0) && (
+          <div className="pt-2 text-center">
+            <p className="text-muted-foreground text-sm font-body mb-2">{t(lang, "rsvpSupportText")}</p>
+            <a href={supportUrl} target="_blank" rel="noopener noreferrer" className="btn-whatsapp inline-block">
+              💬 {t(lang, "rsvpSupportCta")}
+            </a>
+          </div>
+        )}
       </form>
     </section>
   );
