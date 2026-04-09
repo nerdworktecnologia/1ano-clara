@@ -1,5 +1,6 @@
 import { Lang, t } from "@/lib/i18n";
 import { EVENT_CONFIG } from "@/lib/eventConfig";
+import { normalizeWhatsAppNumber } from "@/lib/utils";
 import { CalendarDays, Clock, MapPin } from "lucide-react";
 
 interface EventDetailsProps {
@@ -61,6 +62,10 @@ const EventDetails = ({ lang }: EventDetailsProps) => {
   const bauernfestTemplate = t(lang, "bauernfestNote");
   const bauernfestParts = bauernfestTemplate.split("{bauernfest}");
   const bauernfestUrl = "https://bauernfest.org/";
+  const villaPhone = "+55 24 99837-3694";
+  const villaWhatsAppUrl = `https://wa.me/${normalizeWhatsAppNumber(villaPhone)}`;
+  const granjaPhone = "+55 24 99827-5427";
+  const granjaWhatsAppUrl = `https://wa.me/${normalizeWhatsAppNumber(granjaPhone)}`;
 
   return (
     <section className="py-12 px-4">
@@ -146,11 +151,25 @@ const EventDetails = ({ lang }: EventDetailsProps) => {
           <div className="space-y-3 text-sm font-body">
             <div>
               <p className="font-semibold text-foreground">Eventos - Villa Itaipava</p>
-              <p className="text-muted-foreground">+55 24 99837-3694</p>
+              <a
+                href={villaWhatsAppUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-muted-foreground underline underline-offset-4"
+              >
+                {villaPhone}
+              </a>
             </div>
             <div>
               <p className="font-semibold text-foreground">Paulo Miguez - Central de Reservas Granja Brasil</p>
-              <p className="text-muted-foreground">+55 24 99827-5427</p>
+              <a
+                href={granjaWhatsAppUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-muted-foreground underline underline-offset-4"
+              >
+                {granjaPhone}
+              </a>
             </div>
           </div>
         </div>
