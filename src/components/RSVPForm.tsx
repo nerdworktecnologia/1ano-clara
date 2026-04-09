@@ -93,6 +93,12 @@ const RSVPForm = ({ lang }: RSVPFormProps) => {
               💬 {t(lang, "sendWhatsApp")}
             </a>
           )}
+          <div className="mt-4">
+            <p className="text-muted-foreground text-sm font-body mb-2">{t(lang, "rsvpSupportText")}</p>
+            <a href={supportUrl} target="_blank" rel="noopener noreferrer" className="btn-secondary inline-block">
+              💬 {t(lang, "rsvpSupportCta")}
+            </a>
+          </div>
         </div>
       </section>
     );
@@ -189,14 +195,17 @@ const RSVPForm = ({ lang }: RSVPFormProps) => {
           🎪 {t(lang, "submit")}
         </button>
 
-        {(submitError || Object.keys(errors).length > 0) && (
-          <div className="pt-2 text-center">
-            <p className="text-muted-foreground text-sm font-body mb-2">{t(lang, "rsvpSupportText")}</p>
-            <a href={supportUrl} target="_blank" rel="noopener noreferrer" className="btn-whatsapp inline-block">
-              💬 {t(lang, "rsvpSupportCta")}
-            </a>
-          </div>
-        )}
+        <div className="pt-2 text-center">
+          <p className="text-muted-foreground text-sm font-body mb-2">{t(lang, "rsvpSupportText")}</p>
+          <a
+            href={supportUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={(submitError || Object.keys(errors).length > 0) ? "btn-whatsapp inline-block" : "btn-secondary inline-block"}
+          >
+            💬 {t(lang, "rsvpSupportCta")}
+          </a>
+        </div>
       </form>
     </section>
   );
