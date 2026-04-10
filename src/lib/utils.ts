@@ -12,3 +12,8 @@ export function normalizeWhatsAppNumber(input: string) {
   if (digits.length === 10 || digits.length === 11) return `55${digits}`;
   return digits;
 }
+
+export function capitalizeFirstLetter(text: string) {
+  if (!text) return text;
+  return text.charAt(0).toUpperCase() + text.slice(1);
+}

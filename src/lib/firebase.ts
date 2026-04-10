@@ -16,6 +16,7 @@ export const firebaseApp = getApps().length ? getApp() : initializeApp(firebaseC
 let analyticsPromise: Promise<Analytics | null> | null = null;
 
 export function initFirebaseAnalytics() {
+  if (!import.meta.env.PROD) return Promise.resolve(null);
   if (!analyticsPromise) {
     analyticsPromise = isSupported()
       .then((supported) => (supported ? getAnalytics(firebaseApp) : null))

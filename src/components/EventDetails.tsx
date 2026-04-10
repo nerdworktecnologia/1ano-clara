@@ -1,6 +1,6 @@
 import { Lang, t } from "@/lib/i18n";
 import { EVENT_CONFIG } from "@/lib/eventConfig";
-import { normalizeWhatsAppNumber } from "@/lib/utils";
+import { capitalizeFirstLetter, normalizeWhatsAppNumber } from "@/lib/utils";
 import { CalendarDays, Clock, MapPin } from "lucide-react";
 
 interface EventDetailsProps {
@@ -46,9 +46,13 @@ export const GiftsSection = ({ lang }: EventDetailsProps) => {
 };
 
 const EventDetails = ({ lang }: EventDetailsProps) => {
-  const dateStr = new Date(EVENT_CONFIG.eventDate).toLocaleDateString(
-    lang === "pt" ? "pt-BR" : "en-US",
-    { weekday: "long", year: "numeric", month: "long", day: "numeric" }
+  const dateStr = capitalizeFirstLetter(
+    new Date(EVENT_CONFIG.eventDate).toLocaleDateString(lang === "pt" ? "pt-BR" : "en-US", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    }),
   );
 
   const inviteTemplate = t(lang, "arraiaInvite");

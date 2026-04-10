@@ -1,5 +1,6 @@
 import { Lang, t } from "@/lib/i18n";
 import { EVENT_CONFIG } from "@/lib/eventConfig";
+import { capitalizeFirstLetter } from "@/lib/utils";
 import Bandeirinhas from "./Bandeirinhas";
 
 interface HeroProps {
@@ -32,12 +33,15 @@ const Hero = ({ lang, onRSVPClick }: HeroProps) => {
           {EVENT_CONFIG.eventName}
         </h1>
         <p className="text-muted-foreground font-body text-base md:text-lg mb-2">
-          📅 {new Date(EVENT_CONFIG.eventDate).toLocaleDateString(lang === "pt" ? "pt-BR" : "en-US", {
-            weekday: "long",
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-          })}
+          📅{" "}
+          {capitalizeFirstLetter(
+            new Date(EVENT_CONFIG.eventDate).toLocaleDateString(lang === "pt" ? "pt-BR" : "en-US", {
+              weekday: "long",
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            }),
+          )}
         </p>
         <p className="text-muted-foreground font-body text-base md:text-lg mb-8">
           🕐 {EVENT_CONFIG.eventTime} &nbsp;|&nbsp; 📍 {EVENT_CONFIG.address.split(",")[0]}
