@@ -8,6 +8,7 @@ import RSVPForm from "@/components/RSVPForm";
 import LangToggle from "@/components/LangToggle";
 import Bandeirinhas from "@/components/Bandeirinhas";
 import Fogueira from "@/components/Fogueira";
+import BackgroundMusic from "@/components/BackgroundMusic";
 
 const Index = () => {
   const [searchParams] = useSearchParams();
@@ -21,6 +22,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background overflow-hidden">
       <LangToggle lang={lang} onToggle={() => setLang(lang === "pt" ? "en" : "pt")} />
+      <BackgroundMusic lang={lang} />
       <Hero lang={lang} onRSVPClick={scrollToRSVP} />
       <Bandeirinhas count={25} />
       <Countdown lang={lang} />
