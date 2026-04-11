@@ -164,16 +164,34 @@ const EventDetails = ({ lang }: EventDetailsProps) => {
                 {villaPhone}
               </a>
             </div>
-            <div>
-              <p className="font-semibold text-foreground">Paulo Miguez - Central de Reservas Granja Brasil</p>
-              <a
-                href={granjaWhatsAppUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-muted-foreground underline underline-offset-4"
-              >
-                {granjaPhone}
-              </a>
+            <div className="space-y-2 pt-2 border-t border-border/50">
+              <div>
+                <p className="font-semibold text-foreground">Central de Reservas Granja Brasil</p>
+                <a
+                  href={granjaWhatsAppUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-muted-foreground underline underline-offset-4"
+                >
+                  Paulo Miguez: {granjaPhone}
+                </a>
+              </div>
+              <div className="bg-primary/5 p-3 rounded-lg border border-primary/10">
+                <p className="text-foreground font-medium text-sm mb-1">{t(lang, "granjaBrasilDetails")} 👇🏻</p>
+                <a
+                  href="https://reservasgranjabrasil.github.io/assistente-de-reservas/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary font-semibold hover:underline block mb-2"
+                >
+                  🤖 {t(lang, "granjaBrasilAssistant")}
+                </a>
+                <div className="text-muted-foreground text-xs space-y-0.5">
+                  <p className="font-semibold text-foreground/80">{t(lang, "granjaBrasilHours")}</p>
+                  <p>{t(lang, "granjaBrasilHoursWeek")}</p>
+                  <p>{t(lang, "granjaBrasilHoursSat")}</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
