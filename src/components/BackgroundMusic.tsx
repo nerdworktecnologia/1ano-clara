@@ -141,11 +141,13 @@ const BackgroundMusic = ({ lang }: BackgroundMusicProps) => {
   const ytReadyRef = useRef(false);
 
   const [muted, setMuted] = useState(() => readMuted());
+  const [autoMuted, setAutoMuted] = useState(false);
   const [ready, setReady] = useState(false);
 
   const youtubeUrl = EVENT_CONFIG.backgroundMusicYouTubeUrl;
   const youtubeVideoId = useMemo(() => (youtubeUrl ? getYouTubeVideoId(youtubeUrl) : null), [youtubeUrl]);
   const useYouTube = !!youtubeVideoId;
+  const isEffectivelyMuted = muted || autoMuted;
 
   const labels = useMemo(() => {
     if (lang === "pt") {
@@ -205,12 +207,13 @@ const BackgroundMusic = ({ lang }: BackgroundMusicProps) => {
               } catch {
                 return;
               }
-              if (!muted) {
-                try {
-                  player.playVideo();
-                } catch {
-                  return;
-                }
+              if (muted) return;
+              try {
+                player.playVideo();
+                setAutoMuted(true);
+                setReady(false);
+              } catch {
+                return;
               }
             },
           },
@@ -235,33 +238,17 @@ const BackgroundMusic = ({ lang }: BackgroundMusicProps) => {
   }, [muted, useYouTube, youtubeVideoId]);
 
   useEffect(() => {
-    if (muted) return;
-
-    if (!useYouTube) {
-      const audio = audioRef.current;
-      if (!audio) return;
-      audio.volume = 0;
-      audio.muted = true;
-      audio
-        .play()
-        .then(() => {
-          return;
-        })
-        .catch(() => {
-          return;
-        });
-      return;
-    }
-
     const onFirstGesture = () => {
+      if (muted) return;
+
       if (useYouTube) {
-        if (muted || ready) return;
         const player = ytPlayerRef.current;
         if (!player || !ytReadyRef.current) return;
         try {
           player.unMute();
           player.setVolume(0);
           player.playVideo();
+          setAutoMuted(false);
           fadeToYouTube(player, TARGET_VOLUME_YT, () => setReady(true));
         } catch {
           return;
@@ -270,11 +257,12 @@ const BackgroundMusic = ({ lang }: BackgroundMusicProps) => {
       }
 
       const audio = audioRef.current;
-      if (!audio || muted || ready) return;
+      if (!audio) return;
       audio.muted = false;
       audio
         .play()
         .then(() => {
+          setAutoMuted(false);
           fadeTo(audio, TARGET_VOLUME, () => setReady(true));
         })
         .catch(() => {
@@ -283,13 +271,57 @@ const BackgroundMusic = ({ lang }: BackgroundMusicProps) => {
     };
     window.addEventListener("pointerdown", onFirstGesture, { once: true });
     return () => window.removeEventListener("pointerdown", onFirstGesture);
-  }, [muted, ready, useYouTube]);
+  }, [muted, useYouTube]);
+
+  useEffect(() => {
+    if (muted) {
+      setAutoMuted(false);
+      setReady(false);
+      return;
+    }
+
+    if (useYouTube) return;
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    const tryPlayWithSound = () => {
+      audio.muted = false;
+      audio.volume = 0;
+      return audio
+        .play()
+        .then(() => {
+          setAutoMuted(false);
+          fadeTo(audio, TARGET_VOLUME, () => setReady(true));
+          return true;
+        })
+        .catch(() => false);
+    };
+
+    const tryPlayMuted = () => {
+      audio.muted = true;
+      audio.volume = 0;
+      return audio
+        .play()
+        .then(() => {
+          setAutoMuted(true);
+          setReady(false);
+          return true;
+        })
+        .catch(() => false);
+    };
+
+    void tryPlayWithSound().then((ok) => {
+      if (ok) return;
+      void tryPlayMuted();
+    });
+  }, [muted, useYouTube]);
 
   const toggle = () => {
     if (useYouTube) {
       const player = ytPlayerRef.current;
-      if (muted) {
+      if (isEffectivelyMuted) {
         setMuted(false);
+        setAutoMuted(false);
         if (!player || !ytReadyRef.current) return;
         try {
           player.unMute();
@@ -303,6 +335,7 @@ const BackgroundMusic = ({ lang }: BackgroundMusicProps) => {
       }
 
       setMuted(true);
+      setAutoMuted(false);
       if (!player || !ytReadyRef.current) {
         setReady(false);
         return;
@@ -325,8 +358,9 @@ const BackgroundMusic = ({ lang }: BackgroundMusicProps) => {
       return;
     }
 
-    if (muted) {
+    if (isEffectivelyMuted) {
       setMuted(false);
+      setAutoMuted(false);
       audio.volume = 0;
       audio.muted = false;
       audio
@@ -341,6 +375,7 @@ const BackgroundMusic = ({ lang }: BackgroundMusicProps) => {
     }
 
     setMuted(true);
+    setAutoMuted(false);
     fadeTo(audio, 0, () => {
       audio.pause();
       setReady(false);
@@ -369,10 +404,10 @@ const BackgroundMusic = ({ lang }: BackgroundMusicProps) => {
         type="button"
         onClick={toggle}
         className="fixed top-16 right-4 z-50 flex items-center justify-center bg-card border border-border rounded-full w-11 h-11 shadow-md hover:shadow-lg transition-all font-body text-sm text-foreground"
-        aria-label={muted ? labels.unmute : labels.mute}
-        title={muted ? labels.unmute : labels.mute}
+        aria-label={isEffectivelyMuted ? labels.unmute : labels.mute}
+        title={isEffectivelyMuted ? labels.unmute : labels.mute}
       >
-        {muted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
+        {isEffectivelyMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
       </button>
     </>
   );
