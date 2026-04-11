@@ -154,11 +154,13 @@ const BackgroundMusic = ({ lang }: BackgroundMusicProps) => {
       return {
         mute: "Mutar música",
         unmute: "Ativar música",
+        enableSound: "Ativar som",
       };
     }
     return {
       mute: "Mute music",
       unmute: "Turn on music",
+      enableSound: "Turn on sound",
     };
   }, [lang]);
 
@@ -319,8 +321,22 @@ const BackgroundMusic = ({ lang }: BackgroundMusicProps) => {
   const toggle = () => {
     if (useYouTube) {
       const player = ytPlayerRef.current;
-      if (isEffectivelyMuted) {
+      if (muted) {
         setMuted(false);
+        setAutoMuted(false);
+        if (!player || !ytReadyRef.current) return;
+        try {
+          player.unMute();
+          player.setVolume(0);
+          player.playVideo();
+          fadeToYouTube(player, TARGET_VOLUME_YT, () => setReady(true));
+        } catch {
+          setReady(false);
+        }
+        return;
+      }
+
+      if (autoMuted) {
         setAutoMuted(false);
         if (!player || !ytReadyRef.current) return;
         try {
@@ -358,8 +374,23 @@ const BackgroundMusic = ({ lang }: BackgroundMusicProps) => {
       return;
     }
 
-    if (isEffectivelyMuted) {
+    if (muted) {
       setMuted(false);
+      setAutoMuted(false);
+      audio.volume = 0;
+      audio.muted = false;
+      audio
+        .play()
+        .then(() => {
+          fadeTo(audio, TARGET_VOLUME, () => setReady(true));
+        })
+        .catch(() => {
+          setReady(false);
+        });
+      return;
+    }
+
+    if (autoMuted) {
       setAutoMuted(false);
       audio.volume = 0;
       audio.muted = false;
@@ -404,10 +435,10 @@ const BackgroundMusic = ({ lang }: BackgroundMusicProps) => {
         type="button"
         onClick={toggle}
         className="fixed top-16 right-4 z-50 flex items-center justify-center bg-card border border-border rounded-full w-11 h-11 shadow-md hover:shadow-lg transition-all font-body text-sm text-foreground"
-        aria-label={isEffectivelyMuted ? labels.unmute : labels.mute}
-        title={isEffectivelyMuted ? labels.unmute : labels.mute}
+        aria-label={muted ? labels.unmute : (autoMuted ? labels.enableSound : labels.mute)}
+        title={muted ? labels.unmute : (autoMuted ? labels.enableSound : labels.mute)}
       >
-        {isEffectivelyMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
+        {muted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
       </button>
     </>
   );
