@@ -3,7 +3,7 @@ import { Lang } from "@/lib/i18n";
 import { Volume2, VolumeX } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 
-const STORAGE_KEY = "bg_music_muted";
+const STORAGE_KEY = "bg_music_muted_v2";
 const TARGET_VOLUME = 0.16;
 const TARGET_VOLUME_YT = Math.round(TARGET_VOLUME * 100);
 
@@ -434,7 +434,7 @@ const BackgroundMusic = ({ lang }: BackgroundMusicProps) => {
       <button
         type="button"
         onClick={toggle}
-        className="fixed top-16 right-4 z-50 flex items-center justify-center bg-card border border-border rounded-full w-11 h-11 shadow-md hover:shadow-lg transition-all font-body text-sm text-foreground"
+        className={`fixed top-16 right-4 z-50 flex items-center justify-center bg-card border border-border rounded-full w-11 h-11 shadow-md hover:shadow-lg transition-all font-body text-sm text-foreground ${autoMuted ? "animate-pulse" : ""}`}
         aria-label={muted ? labels.unmute : (autoMuted ? labels.enableSound : labels.mute)}
         title={muted ? labels.unmute : (autoMuted ? labels.enableSound : labels.mute)}
       >
