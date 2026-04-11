@@ -1,5 +1,4 @@
-import { Lang, t } from "@/lib/i18n";
-import { Globe } from "lucide-react";
+import { Lang } from "@/lib/i18n";
 
 interface LangToggleProps {
   lang: Lang;
@@ -9,10 +8,13 @@ interface LangToggleProps {
 const LangToggle = ({ lang, onToggle }: LangToggleProps) => (
   <button
     onClick={onToggle}
-    className="fixed top-4 right-4 z-50 flex items-center gap-2 bg-card border border-border rounded-full px-4 py-2 shadow-md hover:shadow-lg transition-all font-body text-sm text-foreground"
+    className="fixed top-4 right-4 z-50 flex items-center justify-center bg-card border border-border rounded-full w-11 h-11 shadow-md hover:shadow-lg transition-all font-body text-sm text-foreground"
+    aria-label={lang === "pt" ? "Switch to English" : "Mudar para Português"}
+    title={lang === "pt" ? "English" : "Português"}
   >
-    <Globe className="w-4 h-4" />
-    {t(lang, "langSwitch")}
+    <span aria-hidden="true" className="text-lg leading-none">
+      {lang === "pt" ? "🇺🇸" : "🇧🇷"}
+    </span>
   </button>
 );
 

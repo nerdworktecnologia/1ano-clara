@@ -368,12 +368,11 @@ const BackgroundMusic = ({ lang }: BackgroundMusicProps) => {
       <button
         type="button"
         onClick={toggle}
-        className="fixed top-16 right-4 z-50 flex items-center gap-2 bg-card border border-border rounded-full px-3 py-2 shadow-md hover:shadow-lg transition-all font-body text-sm text-foreground"
+        className="fixed top-16 right-4 z-50 flex items-center justify-center bg-card border border-border rounded-full w-11 h-11 shadow-md hover:shadow-lg transition-all font-body text-sm text-foreground"
         aria-label={muted ? labels.unmute : labels.mute}
         title={muted ? labels.unmute : labels.mute}
       >
-        {muted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
-        <span>{lang === "pt" ? "Música" : "Music"}</span>
+        {muted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
       </button>
     </>
   );
