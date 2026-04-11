@@ -2,6 +2,7 @@ export const EVENT_CONFIG = {
   eventName: "Arraiá da Clara Chirigati",
   childName: "Clara",
   backgroundMusicSrc: "/audio/o-balao-vai-subir.mp3",
+  backgroundMusicYouTubeUrl: "https://www.youtube.com/watch?v=6KyPZbcZXoY&list=RD6KyPZbcZXoY&start_radio=1",
   eventDate: "2026-06-20T13:00:00",
   eventTime: "13:00",
   address: "Sítio Nossa Senhora de Fátima, R. Neuza Goulart Brizola, 1959 - Itaipava, Petrópolis - RJ, 25750-037",
