@@ -29,16 +29,18 @@ const RSVPForm = ({ lang }: RSVPFormProps) => {
     return Object.keys(e).length === 0;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
 
+    const finalForm = {
+      ...form,
+      adults: Number(form.adults) || 0,
+      children: Number(form.children) || 0,
+    };
+
     try {
-      await saveRSVP({
-        ...form,
-        adults: Number(form.adults) || 0,
-        children: Number(form.children) || 0,
-      });
+      saveRSVP(finalForm);
       setSubmitted(true);
       setSubmitError(false);
     } catch {
@@ -46,7 +48,7 @@ const RSVPForm = ({ lang }: RSVPFormProps) => {
       return;
     }
 
-    if (form.attending) {
+    if (finalForm.attending) {
       // Festa junina confetti colors
       confetti({
         particleCount: 150,

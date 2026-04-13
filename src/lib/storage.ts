@@ -88,17 +88,17 @@ export async function loadRSVPs(): Promise<RSVPEntry[]> {
   }
 }
 
-export async function saveRSVP(entry: Omit<RSVPEntry, "id" | "createdAt">): Promise<RSVPEntry> {
+export function saveRSVP(entry: Omit<RSVPEntry, "id" | "createdAt">): RSVPEntry {
   const entries = getRSVPs();
   const newEntry: RSVPEntry = {
     ...entry,
     id: generateId(),
     createdAt: new Date().toISOString(),
   };
-  const cloudOk = await trySaveRSVPToCloud(newEntry);
   entries.push(newEntry);
   const localOk = safeSet(RSVP_KEY, entries);
-  if (!cloudOk && !localOk) throw new Error("RSVP_SAVE_FAILED");
+  void trySaveRSVPToCloud(newEntry);
+  if (!localOk) throw new Error("RSVP_SAVE_FAILED");
   return newEntry;
 }
 
