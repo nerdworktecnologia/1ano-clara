@@ -12,8 +12,8 @@ const RSVPForm = ({ lang }: RSVPFormProps) => {
   const [form, setForm] = useState({
     name: "",
     attending: true,
-    adults: 1,
-    children: 0,
+    adults: "1",
+    children: "0",
     phone: "",
     notes: "",
   });
@@ -34,7 +34,11 @@ const RSVPForm = ({ lang }: RSVPFormProps) => {
     if (!validate()) return;
 
     try {
-      await saveRSVP(form);
+      await saveRSVP({
+        ...form,
+        adults: Number(form.adults) || 0,
+        children: Number(form.children) || 0,
+      });
       setSubmitted(true);
       setSubmitError(false);
     } catch {
@@ -122,7 +126,10 @@ const RSVPForm = ({ lang }: RSVPFormProps) => {
                 min={1}
                 max={20}
                 value={form.adults}
-                onChange={(e) => setForm({ ...form, adults: Number(e.target.value) })}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setForm({ ...form, adults: val.replace(/^0+(?=\d)/, '') });
+                }}
                 className="w-full px-4 py-3 rounded-lg border border-input bg-background font-body focus:outline-none focus:ring-2 focus:ring-primary"
               />
             </div>
@@ -133,7 +140,10 @@ const RSVPForm = ({ lang }: RSVPFormProps) => {
                 min={0}
                 max={20}
                 value={form.children}
-                onChange={(e) => setForm({ ...form, children: Number(e.target.value) })}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setForm({ ...form, children: val === "" ? "" : val.replace(/^0+(?=\d)/, '') });
+                }}
                 className="w-full px-4 py-3 rounded-lg border border-input bg-background font-body focus:outline-none focus:ring-2 focus:ring-primary"
               />
             </div>
