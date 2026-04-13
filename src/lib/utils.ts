@@ -6,9 +6,15 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function normalizeWhatsAppNumber(input: string) {
-  const digits = input.replace(/\D/g, "");
-  if (!digits) return "";
+  const trimmed = input.trim();
+  const rawDigits = input.replace(/\D/g, "");
+  if (!rawDigits) return "";
+
+  const digits = trimmed.startsWith("00") ? rawDigits.replace(/^00/, "") : rawDigits;
+  if (trimmed.startsWith("+") || trimmed.startsWith("00")) return digits;
+
   if (digits.startsWith("55")) return digits;
+  if (digits.length === 11 && digits.startsWith("1")) return digits;
   if (digits.length === 10 || digits.length === 11) return `55${digits}`;
   return digits;
 }

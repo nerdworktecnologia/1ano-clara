@@ -1,9 +1,7 @@
 import { useState } from "react";
 import { Lang, t } from "@/lib/i18n";
-import { EVENT_CONFIG } from "@/lib/eventConfig";
 import { saveRSVP } from "@/lib/storage";
 import { normalizeWhatsAppNumber } from "@/lib/utils";
-import { useIsMobile } from "@/hooks/use-mobile";
 import confetti from "canvas-confetti";
 
 interface RSVPFormProps {
@@ -11,7 +9,6 @@ interface RSVPFormProps {
 }
 
 const RSVPForm = ({ lang }: RSVPFormProps) => {
-  const isMobile = useIsMobile();
   const [form, setForm] = useState({
     name: "",
     attending: true,
@@ -46,18 +43,6 @@ const RSVPForm = ({ lang }: RSVPFormProps) => {
     }
 
     if (form.attending) {
-      try {
-        if (isMobile) {
-          window.location.href = whatsappUrl;
-        } else {
-          window.open(whatsappUrl, "_blank", "noopener,noreferrer");
-        }
-      } catch {
-        window.location.href = whatsappUrl;
-      }
-    }
-
-    if (form.attending) {
       // Festa junina confetti colors
       confetti({
         particleCount: 150,
@@ -68,12 +53,6 @@ const RSVPForm = ({ lang }: RSVPFormProps) => {
     }
   };
 
-  const whatsappMsg = t(lang, "whatsAppMsg")
-    .replace("{responsible}", form.name.trim())
-    .replace("{adults}", String(form.adults))
-    .replace("{children}", String(form.children));
-
-  const whatsappUrl = `https://wa.me/${normalizeWhatsAppNumber(EVENT_CONFIG.whatsappNumber)}?text=${encodeURIComponent(whatsappMsg)}`;
   const supportNumber = "5521997914496";
   const supportMsg = t(lang, "rsvpSupportMsg")
     .replace("{responsible}", form.name.trim() || "-")
@@ -87,11 +66,6 @@ const RSVPForm = ({ lang }: RSVPFormProps) => {
           <div className="text-6xl mb-4">🎪</div>
           <h2 className="section-title">{t(lang, "thankYouTitle")}</h2>
           <p className="text-muted-foreground font-body mb-6">{t(lang, "thankYouMsg")}</p>
-          {form.attending && (
-            <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="btn-whatsapp inline-block">
-              💬 {t(lang, "sendWhatsApp")}
-            </a>
-          )}
           <div className="mt-4">
             <p className="text-muted-foreground text-sm font-body mb-2">{t(lang, "rsvpSupportText")}</p>
             <a href={supportUrl} target="_blank" rel="noopener noreferrer" className="btn-secondary inline-block">
