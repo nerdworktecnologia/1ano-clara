@@ -1,5 +1,6 @@
 import { getApp, getApps, initializeApp } from "firebase/app";
 import { getAnalytics, isSupported, type Analytics } from "firebase/analytics";
+import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCi4niCQk6WK8qlTqkzTkQxjbXEg_Or8s8",
@@ -12,6 +13,7 @@ const firebaseConfig = {
 };
 
 export const firebaseApp = getApps().length ? getApp() : initializeApp(firebaseConfig);
+export const firestoreDb = getFirestore(firebaseApp);
 
 let analyticsPromise: Promise<Analytics | null> | null = null;
 

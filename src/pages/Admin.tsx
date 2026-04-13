@@ -3,6 +3,7 @@ import { Lang, t } from "@/lib/i18n";
 import { EVENT_CONFIG } from "@/lib/eventConfig";
 import {
   getRSVPs,
+  loadRSVPs,
   getGuests,
   saveGuest,
   importGuests,
@@ -12,6 +13,7 @@ import {
   type RSVPEntry,
   type GuestEntry,
 } from "@/lib/storage";
+import { normalizeWhatsAppNumber } from "@/lib/utils";
 import { Download, Upload, Send, Users, UserCheck, UserX, ArrowLeft, Pencil, Trash2, Check, X } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -35,10 +37,11 @@ const AdminPage = () => {
   const [newCategory, setNewCategory] = useState<"adult" | "child">("adult");
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const login = () => {
+  const login = async () => {
     if (password === EVENT_CONFIG.adminPassword) {
       setAuthenticated(true);
-      setRsvps(getRSVPs());
+      const entries = await loadRSVPs();
+      setRsvps(entries);
       setGuests(getGuests());
     }
   };
@@ -83,7 +86,7 @@ const AdminPage = () => {
     const msg = t(gLang, "inviteMsg")
       .replace("{name}", guest.name)
       .replace("{link}", `${EVENT_CONFIG.siteUrl}?lang=${gLang}`);
-    const url = `https://wa.me/${guest.phone.replace(/\D/g, "")}?text=${encodeURIComponent(msg)}`;
+    const url = `https://wa.me/${normalizeWhatsAppNumber(guest.phone)}?text=${encodeURIComponent(msg)}`;
     window.open(url, "_blank");
     markInvited(guest.id);
     setGuests(getGuests());

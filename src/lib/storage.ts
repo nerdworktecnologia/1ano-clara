@@ -20,6 +20,7 @@ export interface GuestEntry {
 
 const RSVP_KEY = "rsvp_entries";
 const GUESTS_KEY = "guest_list";
+const RSVP_COLLECTION = "rsvps";
 
 function generateId() {
   const c = globalThis.crypto as Crypto | undefined;
@@ -50,20 +51,54 @@ function safeGet<T>(key: string, fallback: T): T {
 function safeSet(key: string, value: unknown) {
   try {
     localStorage.setItem(key, JSON.stringify(value));
+    return true;
   } catch {
-    return;
+    return false;
   }
 }
 
-export function saveRSVP(entry: Omit<RSVPEntry, "id" | "createdAt">): RSVPEntry {
+async function trySaveRSVPToCloud(entry: RSVPEntry) {
+  try {
+    const [{ firestoreDb }, { doc, setDoc }] = await Promise.all([
+      import("@/lib/firebase"),
+      import("firebase/firestore"),
+    ]);
+    await setDoc(doc(firestoreDb, RSVP_COLLECTION, entry.id), entry, { merge: false });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export async function loadRSVPs(): Promise<RSVPEntry[]> {
+  try {
+    const [{ firestoreDb }, { collection, getDocs }] = await Promise.all([
+      import("@/lib/firebase"),
+      import("firebase/firestore"),
+    ]);
+    const snap = await getDocs(collection(firestoreDb, RSVP_COLLECTION));
+    const entries = snap.docs
+      .map((d) => d.data() as RSVPEntry)
+      .filter((e) => e && typeof e.id === "string")
+      .sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
+    safeSet(RSVP_KEY, entries);
+    return entries;
+  } catch {
+    return getRSVPs();
+  }
+}
+
+export async function saveRSVP(entry: Omit<RSVPEntry, "id" | "createdAt">): Promise<RSVPEntry> {
   const entries = getRSVPs();
   const newEntry: RSVPEntry = {
     ...entry,
     id: generateId(),
     createdAt: new Date().toISOString(),
   };
+  const cloudOk = await trySaveRSVPToCloud(newEntry);
   entries.push(newEntry);
-  safeSet(RSVP_KEY, entries);
+  const localOk = safeSet(RSVP_KEY, entries);
+  if (!cloudOk && !localOk) throw new Error("RSVP_SAVE_FAILED");
   return newEntry;
 }
 
@@ -81,6 +116,7 @@ export function updateRSVP(
   const updated: RSVPEntry = { ...entries[idx], ...patch };
   entries[idx] = updated;
   safeSet(RSVP_KEY, entries);
+  void trySaveRSVPToCloud(updated);
   return updated;
 }
 
@@ -88,6 +124,17 @@ export function deleteRSVP(id: string) {
   const entries = getRSVPs();
   const next = entries.filter((e) => e.id !== id);
   safeSet(RSVP_KEY, next);
+  void (async () => {
+    try {
+      const [{ firestoreDb }, { deleteDoc, doc }] = await Promise.all([
+        import("@/lib/firebase"),
+        import("firebase/firestore"),
+      ]);
+      await deleteDoc(doc(firestoreDb, RSVP_COLLECTION, id));
+    } catch {
+      return;
+    }
+  })();
 }
 
 export function getGuests(): GuestEntry[] {

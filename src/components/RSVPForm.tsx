@@ -29,12 +29,12 @@ const RSVPForm = ({ lang }: RSVPFormProps) => {
     return Object.keys(e).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
 
     try {
-      saveRSVP(form);
+      await saveRSVP(form);
       setSubmitted(true);
       setSubmitError(false);
     } catch {

@@ -10,7 +10,8 @@ export function normalizeWhatsAppNumber(input: string) {
   const rawDigits = input.replace(/\D/g, "");
   if (!rawDigits) return "";
 
-  const digits = trimmed.startsWith("00") ? rawDigits.replace(/^00/, "") : rawDigits;
+  const digitsBase = trimmed.startsWith("00") ? rawDigits.replace(/^00/, "") : rawDigits;
+  const digits = trimmed.startsWith("+") || trimmed.startsWith("00") ? digitsBase : digitsBase.replace(/^0+/, "");
   if (trimmed.startsWith("+") || trimmed.startsWith("00")) return digits;
 
   if (digits.startsWith("55")) return digits;
