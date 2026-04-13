@@ -150,6 +150,10 @@ const EventDetails = ({ lang }: EventDetailsProps) => {
           {bauernfestParts[2] ?? ""}
         </p>
 
+        <p className="text-muted-foreground font-body leading-relaxed">
+          {t(lang, "hotelRecommendationText")}
+        </p>
+
         <div className="rounded-xl border border-border bg-background/50 p-4">
           <p className="font-bold font-body text-foreground mb-3">{t(lang, "hotelsTitle")}</p>
           <div className="space-y-3 text-sm font-body">
