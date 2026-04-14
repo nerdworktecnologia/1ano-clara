@@ -10,6 +10,8 @@ import {
   updateRSVP,
   deleteRSVP,
   markInvited,
+  clearGuests,
+  clearInvitedGuests,
   type RSVPEntry,
   type GuestEntry,
 } from "@/lib/storage";
@@ -29,10 +31,13 @@ const AdminPage = () => {
     adults: number;
     children: number;
     phone: string;
+    notes: string;
   } | null>(null);
   const [guests, setGuests] = useState<GuestEntry[]>([]);
+  const [bulkPending, setBulkPending] = useState<GuestEntry[]>([]);
   const [newName, setNewName] = useState("");
   const [newPhone, setNewPhone] = useState("");
+  const [newPeople, setNewPeople] = useState("");
   const [newLang, setNewLang] = useState<Lang>("pt");
   const [newCategory, setNewCategory] = useState<"adult" | "child">("adult");
   const fileRef = useRef<HTMLInputElement>(null);
@@ -48,10 +53,17 @@ const AdminPage = () => {
 
   const addGuest = () => {
     if (!newName.trim() || !newPhone.trim()) return;
-    const g = saveGuest({ name: newName.trim(), phone: newPhone.trim(), lang: newLang, category: newCategory });
+    const g = saveGuest({
+      name: newName.trim(),
+      phone: newPhone.trim(),
+      people: newPeople.trim(),
+      lang: newLang,
+      category: newCategory,
+    });
     setGuests((prev) => [...prev, g]);
     setNewName("");
     setNewPhone("");
+    setNewPeople("");
     setNewLang("pt");
     setNewCategory("adult");
   };
@@ -69,10 +81,10 @@ const AdminPage = () => {
       const list = data
         .map((line) => {
           const parts = line.split(delim).map((s) => s.trim());
-          const [name, phone, langRaw, categoryRaw] = parts;
+          const [name, phone, langRaw, categoryRaw, people] = parts;
           const lang = (langRaw || "pt").toLowerCase() === "en" ? "en" : "pt";
           const category = (categoryRaw || "adulto").toLowerCase().startsWith("crian") ? "child" : "adult";
-          return { name, phone, lang, category };
+          return { name, phone, people, lang, category };
         })
         .filter((g) => g.name && g.phone);
       importGuests(list);
@@ -83,8 +95,12 @@ const AdminPage = () => {
 
   const sendInvite = (guest: GuestEntry) => {
     const gLang: Lang = guest.lang;
+    const people = (guest.people || "").trim() || guest.name;
+    const deadline = gLang === "pt" ? "5 de maio" : "May 5";
     const msg = t(gLang, "inviteMsg")
       .replace("{name}", guest.name)
+      .replace("{people}", people)
+      .replace("{deadline}", deadline)
       .replace("{link}", `${EVENT_CONFIG.siteUrl}?lang=${gLang}`);
     const url = `https://wa.me/${normalizeWhatsAppNumber(guest.phone)}?text=${encodeURIComponent(msg)}`;
     window.open(url, "_blank");
@@ -112,6 +128,7 @@ const AdminPage = () => {
       adults: r.adults,
       children: r.children,
       phone: r.phone,
+      notes: r.notes || "",
     });
   };
 
@@ -128,6 +145,7 @@ const AdminPage = () => {
       adults: editingRsvp.adults,
       children: editingRsvp.children,
       phone: editingRsvp.phone,
+      notes: editingRsvp.notes,
     });
     setRsvps(getRSVPs());
     cancelEditRsvp();
@@ -221,6 +239,7 @@ const AdminPage = () => {
                     <th className="text-left py-2 px-2">{t(lang, "adults")}</th>
                     <th className="text-left py-2 px-2">{t(lang, "children")}</th>
                     <th className="text-left py-2 px-2">{t(lang, "phone")}</th>
+                    <th className="text-left py-2 px-2">{t(lang, "notes")}</th>
                     <th className="text-right py-2 px-2">Ações</th>
                   </tr>
                 </thead>
@@ -293,6 +312,21 @@ const AdminPage = () => {
                             />
                           ) : (
                             r.phone
+                          )}
+                        </td>
+                        <td className="py-2 px-2">
+                          {isEditing ? (
+                            <textarea
+                              value={editingRsvp.notes}
+                              onChange={(e) => setEditingRsvp({ ...editingRsvp, notes: e.target.value })}
+                              className="w-full px-3 py-2 rounded-lg border border-input bg-background font-body resize-none"
+                              rows={2}
+                              maxLength={500}
+                            />
+                          ) : (
+                            <span className="block max-w-xs truncate" title={r.notes || ""}>
+                              {r.notes || "-"}
+                            </span>
                           )}
                         </td>
                         <td className="py-2 px-2">
@@ -370,6 +404,13 @@ const AdminPage = () => {
               className="flex-1 px-4 py-2 rounded-xl border border-input bg-background font-body focus:outline-none focus:ring-2 focus:ring-primary"
               maxLength={20}
             />
+            <input
+              value={newPeople}
+              onChange={(e) => setNewPeople(e.target.value)}
+              placeholder={t(lang, "invitees")}
+              className="flex-1 px-4 py-2 rounded-xl border border-input bg-background font-body focus:outline-none focus:ring-2 focus:ring-primary"
+              maxLength={200}
+            />
             <select
               value={newLang}
               onChange={(e) => setNewLang(e.target.value as Lang)}
@@ -401,12 +442,61 @@ const AdminPage = () => {
               <Upload className="w-4 h-4" /> {t(lang, "import")}
             </button>
             <button
-              onClick={() => guests.filter((g) => !g.invited).forEach((g) => sendInvite(g))}
+              onClick={() => setBulkPending(guests.filter((g) => !g.invited))}
               className="btn-whatsapp flex items-center gap-2 text-sm"
             >
               <Send className="w-4 h-4" /> {t(lang, "sendAll")}
             </button>
+            <button
+              onClick={() => {
+                const ok = window.confirm("Limpar toda a lista de convidados?");
+                if (!ok) return;
+                clearGuests();
+                setGuests([]);
+                setBulkPending([]);
+              }}
+              className="btn-secondary flex items-center gap-2 text-sm"
+            >
+              <Trash2 className="w-4 h-4" /> {t(lang, "clearGuestList")}
+            </button>
+            <button
+              onClick={() => {
+                const ok = window.confirm("Limpar apenas os convidados marcados como enviados?");
+                if (!ok) return;
+                clearInvitedGuests();
+                setGuests(getGuests());
+                setBulkPending((prev) => prev.filter((g) => !g.invited));
+              }}
+              className="btn-secondary flex items-center gap-2 text-sm"
+            >
+              <Trash2 className="w-4 h-4" /> {t(lang, "clearSentGuestList")}
+            </button>
           </div>
+
+          {bulkPending.length > 0 && (
+            <div className="mb-4 p-3 rounded-xl bg-muted/50">
+              <div className="font-semibold font-body mb-2">Envios pendentes ({bulkPending.length})</div>
+              <div className="space-y-2">
+                {bulkPending.map((g) => (
+                  <div key={g.id} className="flex items-center justify-between gap-2">
+                    <div className="text-sm">
+                      <span className="font-semibold">{g.name}</span>
+                      <span className="text-muted-foreground ml-2">{g.phone}</span>
+                    </div>
+                    <button
+                      onClick={() => {
+                        sendInvite(g);
+                        setBulkPending((prev) => prev.filter((x) => x.id !== g.id));
+                      }}
+                      className="btn-whatsapp text-xs py-1 px-3"
+                    >
+                      <Send className="w-3 h-3" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {guests.length > 0 && (
             <div className="space-y-2">
@@ -416,6 +506,7 @@ const AdminPage = () => {
                     <span className="font-semibold font-body">{g.name}</span>
                     <span className="text-muted-foreground text-sm ml-2">{g.phone}</span>
                     <span className="text-muted-foreground text-xs ml-2">[{g.lang} · {g.category === "child" ? "Criança" : "Adulto"}]</span>
+                    {!!(g.people || "").trim() && <span className="text-muted-foreground text-xs ml-2">· {g.people}</span>}
                     {g.invited && <span className="ml-2 text-xs text-success">✓ Enviado</span>}
                   </div>
                   {!g.invited && (

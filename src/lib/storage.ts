@@ -13,6 +13,7 @@ export interface GuestEntry {
   id: string;
   name: string;
   phone: string;
+  people: string;
   lang: "pt" | "en";
   category: "adult" | "child";
   invited: boolean;
@@ -144,10 +145,11 @@ export function getGuests(): GuestEntry[] {
     const id = typeof obj.id === "string" ? obj.id : generateId();
     const name = typeof obj.name === "string" ? obj.name : "";
     const phone = typeof obj.phone === "string" ? obj.phone : "";
+    const people = typeof obj.people === "string" ? obj.people : "";
     const lang = obj.lang === "en" ? "en" : "pt";
     const category = obj.category === "child" ? "child" : "adult";
     const invited = !!obj.invited;
-    return { id, name, phone, lang, category, invited };
+    return { id, name, phone, people, lang, category, invited };
   });
 }
 
@@ -159,12 +161,13 @@ export function saveGuest(entry: Omit<GuestEntry, "id" | "invited">): GuestEntry
   return newGuest;
 }
 
-export function importGuests(list: { name: string; phone: string; lang?: string; category?: string }[]) {
+export function importGuests(list: { name: string; phone: string; people?: string; lang?: string; category?: string }[]) {
   const guests = getGuests();
   const newGuests = list.map((g) => ({
     id: generateId(),
     name: g.name,
     phone: g.phone,
+    people: g.people || "",
     lang: g.lang === "en" ? "en" : "pt",
     category: g.category === "child" ? "child" : "adult",
     invited: false,
@@ -179,4 +182,18 @@ export function markInvited(id: string) {
     guests[idx].invited = true;
     safeSet(GUESTS_KEY, guests);
   }
+}
+
+export function clearGuests() {
+  try {
+    localStorage.removeItem(GUESTS_KEY);
+  } catch {
+    return;
+  }
+}
+
+export function clearInvitedGuests() {
+  const guests = getGuests();
+  const next = guests.filter((g) => !g.invited);
+  safeSet(GUESTS_KEY, next);
 }
