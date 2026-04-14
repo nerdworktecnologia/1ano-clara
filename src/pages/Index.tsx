@@ -13,6 +13,7 @@ import BackgroundMusic from "@/components/BackgroundMusic";
 const Index = () => {
   const [searchParams] = useSearchParams();
   const initialLang = (searchParams.get("lang") as Lang) || "pt";
+  const initialName = searchParams.get("name") || "";
   const [lang, setLang] = useState<Lang>(initialLang);
 
   const scrollToRSVP = () => {
@@ -31,7 +32,7 @@ const Index = () => {
       <Bandeirinhas count={25} />
       <GiftsSection lang={lang} />
       <Bandeirinhas count={25} />
-      <RSVPForm lang={lang} />
+      <RSVPForm lang={lang} initialName={initialName} />
       <footer className="text-center py-8 text-muted-foreground text-sm font-body">
         <Bandeirinhas count={25} />
         <div className="mt-6 flex justify-center">

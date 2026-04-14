@@ -101,7 +101,7 @@ const AdminPage = () => {
       .replace("{name}", guest.name)
       .replace("{people}", people)
       .replace("{deadline}", deadline)
-      .replace("{link}", `${EVENT_CONFIG.siteUrl}?lang=${gLang}`);
+      .replace("{link}", `${EVENT_CONFIG.siteUrl}?lang=${gLang}&name=${encodeURIComponent(guest.name)}`);
     const url = `https://wa.me/${normalizeWhatsAppNumber(guest.phone)}?text=${encodeURIComponent(msg)}`;
     window.open(url, "_blank");
     markInvited(guest.id);

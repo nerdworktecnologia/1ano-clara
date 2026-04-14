@@ -6,11 +6,12 @@ import confetti from "canvas-confetti";
 
 interface RSVPFormProps {
   lang: Lang;
+  initialName?: string;
 }
 
-const RSVPForm = ({ lang }: RSVPFormProps) => {
+const RSVPForm = ({ lang, initialName }: RSVPFormProps) => {
   const [form, setForm] = useState({
-    name: "",
+    name: (initialName || "").slice(0, 100),
     attending: true,
     adults: "1",
     children: "0",
