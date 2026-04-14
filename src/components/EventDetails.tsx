@@ -66,10 +66,12 @@ const EventDetails = ({ lang }: EventDetailsProps) => {
   const bauernfestTemplate = t(lang, "bauernfestNote");
   const bauernfestParts = bauernfestTemplate.split("{bauernfest}");
   const bauernfestUrl = "https://bauernfest.org/";
-  const villaPhone = "+55 24 99837-3694";
+  const villaPhone = "+55 24 2236-4000";
   const villaWhatsAppUrl = `https://wa.me/${normalizeWhatsAppNumber(villaPhone)}`;
   const granjaPhone = "+55 24 99827-5427";
   const granjaWhatsAppUrl = `https://wa.me/${normalizeWhatsAppNumber(granjaPhone)}`;
+  const villaBookingUrl = "https://reservas.desbravador.com.br/hotel-app/villa-itaipava-resort-e-conventions";
+  const villaCoupon = "CLARINHA1ANO";
 
   return (
     <section className="py-12 px-4">
@@ -158,15 +160,31 @@ const EventDetails = ({ lang }: EventDetailsProps) => {
           <p className="font-bold font-body text-foreground mb-3">{t(lang, "hotelsTitle")}</p>
           <div className="space-y-3 text-sm font-body">
             <div>
-              <p className="font-semibold text-foreground">Eventos - Villa Itaipava</p>
+              <p className="font-semibold text-foreground">Villa Itaipava Resort & Conventions</p>
               <a
                 href={villaWhatsAppUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-muted-foreground underline underline-offset-4"
               >
-                {villaPhone}
+                (24) 2236-4000 (Telefone e WhatsApp)
               </a>
+              <div className="mt-2 bg-primary/5 p-3 rounded-lg border border-primary/10">
+                <p className="text-foreground font-medium text-sm mb-1">{t(lang, "villaDiscountTitle")}</p>
+                <p className="text-muted-foreground text-xs leading-relaxed mb-2">{t(lang, "villaDiscountText")}</p>
+                <a
+                  href={villaBookingUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary font-semibold hover:underline block mb-2"
+                >
+                  🔗 {t(lang, "villaDiscountCta")}
+                </a>
+                <div className="text-muted-foreground text-xs">
+                  <span className="font-semibold text-foreground/80">{t(lang, "villaDiscountCouponLabel")}: </span>
+                  <span className="font-semibold text-foreground">{villaCoupon}</span>
+                </div>
+              </div>
             </div>
             <div className="space-y-2 pt-2 border-t border-border/50">
               <div>
