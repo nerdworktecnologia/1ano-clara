@@ -12,6 +12,7 @@ import {
   markInvited,
   clearGuests,
   clearInvitedGuests,
+  deleteGuest,
   type RSVPEntry,
   type GuestEntry,
 } from "@/lib/storage";
@@ -527,11 +528,27 @@ const AdminPage = () => {
                     {!!(g.people || "").trim() && <span className="text-muted-foreground text-xs ml-2">· {g.people}</span>}
                     {g.invited && <span className="ml-2 text-xs text-success">✓ Enviado</span>}
                   </div>
-                  {!g.invited && (
-                    <button onClick={() => sendInvite(g)} className="btn-whatsapp text-xs py-1 px-3">
-                      <Send className="w-3 h-3" />
+                  <div className="flex items-center gap-2">
+                    {!g.invited && (
+                      <button onClick={() => sendInvite(g)} className="btn-whatsapp text-xs py-1 px-3" aria-label="Enviar" title="Enviar">
+                        <Send className="w-3 h-3" />
+                      </button>
+                    )}
+                    <button
+                      onClick={() => {
+                        const ok = window.confirm("Remover este convidado?");
+                        if (!ok) return;
+                        deleteGuest(g.id);
+                        setGuests(getGuests());
+                        setBulkPending((prev) => prev.filter((x) => x.id !== g.id));
+                      }}
+                      className="p-2 rounded-lg hover:bg-muted"
+                      aria-label="Remover"
+                      title="Remover"
+                    >
+                      <Trash2 className="w-4 h-4 text-destructive" />
                     </button>
-                  )}
+                  </div>
                 </div>
               ))}
             </div>

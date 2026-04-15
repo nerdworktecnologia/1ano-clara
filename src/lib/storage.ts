@@ -197,3 +197,9 @@ export function clearInvitedGuests() {
   const next = guests.filter((g) => !g.invited);
   safeSet(GUESTS_KEY, next);
 }
+
+export function deleteGuest(id: string) {
+  const guests = getGuests();
+  const next = guests.filter((g) => g.id !== id);
+  safeSet(GUESTS_KEY, next);
+}
