@@ -400,52 +400,58 @@ const AdminPage = () => {
         <div className="card-baby">
           <h2 className="text-xl font-bold font-body text-foreground mb-4">{t(lang, "guestList")}</h2>
 
-          <div className="flex flex-col sm:flex-row gap-2 mb-4">
-            <input
-              value={newName}
-              onChange={(e) => setNewName(e.target.value)}
-              placeholder={t(lang, "name")}
-              className="flex-1 px-4 py-2 rounded-xl border border-input bg-background font-body focus:outline-none focus:ring-2 focus:ring-primary"
-              maxLength={100}
-            />
-            <input
-              value={newPhone}
-              onChange={(e) => setNewPhone(e.target.value)}
-              placeholder={t(lang, "phone")}
-              className="flex-1 px-4 py-2 rounded-xl border border-input bg-background font-body focus:outline-none focus:ring-2 focus:ring-primary"
-              maxLength={20}
-            />
+          <div className="space-y-2 mb-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <input
+                value={newName}
+                onChange={(e) => setNewName(e.target.value)}
+                placeholder={t(lang, "name")}
+                className="w-full px-4 py-2 rounded-xl border border-input bg-background font-body focus:outline-none focus:ring-2 focus:ring-primary"
+                maxLength={100}
+              />
+              <input
+                value={newPhone}
+                onChange={(e) => setNewPhone(e.target.value)}
+                placeholder={t(lang, "phone")}
+                className="w-full px-4 py-2 rounded-xl border border-input bg-background font-body focus:outline-none focus:ring-2 focus:ring-primary"
+                maxLength={20}
+              />
+            </div>
+
             <textarea
               value={newPeople}
               onChange={(e) => setNewPeople(e.target.value)}
               placeholder={lang === "pt" ? "Convidados (um por linha)" : "Invitees (one per line)"}
-              className="flex-1 px-4 py-2 rounded-xl border border-input bg-background font-body focus:outline-none focus:ring-2 focus:ring-primary resize-none"
-              rows={2}
+              className="w-full px-4 py-2 rounded-xl border border-input bg-background font-body focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+              rows={3}
               maxLength={500}
             />
-            <select
-              value={newLang}
-              onChange={(e) => setNewLang(e.target.value as Lang)}
-              className="px-3 py-2 rounded-xl border border-input bg-background font-body"
-              aria-label="Idioma"
-              title="Idioma"
-            >
-              <option value="pt">pt</option>
-              <option value="en">en</option>
-            </select>
-            <select
-              value={newCategory}
-              onChange={(e) => setNewCategory(e.target.value as "adult" | "child")}
-              className="px-3 py-2 rounded-xl border border-input bg-background font-body"
-              aria-label="Tipo"
-              title="Tipo"
-            >
-              <option value="adult">Adulto</option>
-              <option value="child">Criança</option>
-            </select>
-            <button onClick={addGuest} className="btn-primary py-2 text-sm">
-              {t(lang, "addGuest")}
-            </button>
+
+            <div className="flex flex-col sm:flex-row gap-2">
+              <select
+                value={newLang}
+                onChange={(e) => setNewLang(e.target.value as Lang)}
+                className="px-3 py-2 rounded-xl border border-input bg-background font-body"
+                aria-label="Idioma"
+                title="Idioma"
+              >
+                <option value="pt">pt</option>
+                <option value="en">en</option>
+              </select>
+              <select
+                value={newCategory}
+                onChange={(e) => setNewCategory(e.target.value as "adult" | "child")}
+                className="px-3 py-2 rounded-xl border border-input bg-background font-body"
+                aria-label="Tipo"
+                title="Tipo"
+              >
+                <option value="adult">Adulto</option>
+                <option value="child">Criança</option>
+              </select>
+              <button onClick={addGuest} className="btn-primary py-2 text-sm">
+                {t(lang, "addGuest")}
+              </button>
+            </div>
           </div>
 
           <div className="flex gap-2 mb-4">
