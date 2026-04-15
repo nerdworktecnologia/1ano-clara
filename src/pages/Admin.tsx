@@ -20,6 +20,95 @@ import { normalizeWhatsAppNumber } from "@/lib/utils";
 import { Download, Upload, Send, Users, UserCheck, UserX, ArrowLeft, Pencil, Trash2, Check, X } from "lucide-react";
 import { Link } from "react-router-dom";
 
+function normalizeHeader(input: string) {
+  return input
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/\s+/g, " ");
+}
+
+function detectDelimiter(sampleLine: string) {
+  const candidates: Array<"," | ";" | "\t"> = [",", ";", "\t"];
+  let best: "," | ";" | "\t" = ",";
+  let bestCount = -1;
+  for (const c of candidates) {
+    const count = sampleLine.split(c).length - 1;
+    if (count > bestCount) {
+      bestCount = count;
+      best = c;
+    }
+  }
+  return best;
+}
+
+function parseDelimited(text: string, delimiter: string) {
+  const rows: string[][] = [];
+  let row: string[] = [];
+  let field = "";
+  let inQuotes = false;
+
+  const pushField = () => {
+    row.push(field);
+    field = "";
+  };
+  const pushRow = () => {
+    pushField();
+    rows.push(row);
+    row = [];
+  };
+
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+
+    if (inQuotes) {
+      if (ch === '"') {
+        const next = text[i + 1];
+        if (next === '"') {
+          field += '"';
+          i++;
+        } else {
+          inQuotes = false;
+        }
+      } else {
+        field += ch;
+      }
+      continue;
+    }
+
+    if (ch === '"') {
+      inQuotes = true;
+      continue;
+    }
+
+    if (ch === delimiter) {
+      pushField();
+      continue;
+    }
+
+    if (ch === "\n") {
+      pushRow();
+      continue;
+    }
+
+    if (ch === "\r") {
+      const next = text[i + 1];
+      if (next === "\n") i++;
+      pushRow();
+      continue;
+    }
+
+    field += ch;
+  }
+
+  if (field.length > 0 || row.length > 0) {
+    pushRow();
+  }
+
+  return rows.filter((r) => r.some((c) => c.trim().length > 0));
+}
+
 const AdminPage = () => {
   const [authenticated, setAuthenticated] = useState(false);
   const [password, setPassword] = useState("");
@@ -74,17 +163,40 @@ const AdminPage = () => {
     if (!file) return;
     const reader = new FileReader();
     reader.onload = (ev) => {
-      const text = ev.target?.result as string;
-      const lines = text.split(/\r?\n/).filter((l) => l.trim().length > 0);
-      const header = lines[0];
-      const delim = header.includes(";") ? ";" : ",";
-      const data = header.toLowerCase().includes("nome") ? lines.slice(1) : lines;
-      const list = data
-        .map((line) => {
-          const parts = line.split(delim).map((s) => s.trim());
-          const [name, phone, langRaw, categoryRaw, people] = parts;
-          const lang = (langRaw || "pt").toLowerCase() === "en" ? "en" : "pt";
-          const category = (categoryRaw || "adulto").toLowerCase().startsWith("crian") ? "child" : "adult";
+      const text = (ev.target?.result as string) || "";
+      const firstNonEmptyLine = text.split(/\r?\n/).find((l) => l.trim().length > 0) || "";
+      const delimiter = detectDelimiter(firstNonEmptyLine);
+      const rows = parseDelimited(text, delimiter);
+      if (rows.length === 0) return;
+
+      const headerRow = rows[0].map((h) => normalizeHeader(h));
+      const hasHeader = headerRow.some((h) => h.includes("nome") || h === "name" || h.includes("telefone") || h.includes("phone"));
+      const startIdx = hasHeader ? 1 : 0;
+
+      const colIndex = (pred: (h: string) => boolean) => {
+        const idx = headerRow.findIndex(pred);
+        return idx >= 0 ? idx : -1;
+      };
+
+      const idxName = hasHeader ? colIndex((h) => h === "nome" || h.includes("nome") || h === "name") : 0;
+      const idxPhone = hasHeader ? colIndex((h) => h.includes("telefone") || h.includes("whatsapp") || h === "phone" || h.includes("phone")) : 1;
+      const idxLang = hasHeader ? colIndex((h) => h === "lang" || h.includes("idioma") || h.includes("language")) : 2;
+      const idxCategory = hasHeader ? colIndex((h) => h.includes("categoria") || h.includes("category") || h.includes("tipo") || h.includes("type")) : 3;
+      const idxPeople = hasHeader ? colIndex((h) => h.includes("convidad") || h.includes("invitee") || h.includes("pessoa") || h.includes("people") || h.includes("famil")) : 4;
+
+      const list = rows
+        .slice(startIdx)
+        .map((cells) => {
+          const name = (cells[idxName] || "").trim();
+          const phone = (cells[idxPhone] || "").trim();
+          const langRaw = (cells[idxLang] || "").trim();
+          const categoryRaw = (cells[idxCategory] || "").trim();
+          const people = (cells[idxPeople] || "").trim();
+
+          const lang = langRaw.toLowerCase() === "en" || langRaw.toLowerCase().startsWith("ing") ? "en" : "pt";
+          const categoryLower = categoryRaw.toLowerCase();
+          const category = categoryLower.startsWith("crian") || categoryLower.startsWith("child") ? "child" : "adult";
+
           return { name, phone, people, lang, category };
         })
         .filter((g) => g.name && g.phone);
