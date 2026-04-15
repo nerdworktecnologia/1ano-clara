@@ -589,9 +589,9 @@ const AdminPage = () => {
               <input
                 value={newPhone}
                 onChange={(e) => setNewPhone(e.target.value)}
-                placeholder={t(lang, "phone")}
+                placeholder={lang === "pt" ? "+55 21 99999-9999 (ou +1 917 000-0000)" : "+1 917 000-0000 (or +55 21 99999-9999)"}
                 className="w-full px-4 py-2 rounded-xl border border-input bg-background font-body focus:outline-none focus:ring-2 focus:ring-primary"
-                maxLength={20}
+                maxLength={30}
               />
             </div>
 
