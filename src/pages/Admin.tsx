@@ -677,11 +677,11 @@ const AdminPage = () => {
               maxLength={500}
             />
 
-            <div className="flex flex-col sm:flex-row gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
               <select
                 value={newLang}
                 onChange={(e) => setNewLang(e.target.value as Lang)}
-                className="px-3 py-2 rounded-xl border border-input bg-background font-body"
+                className="w-full px-3 py-2 rounded-xl border border-input bg-background font-body"
                 aria-label="Idioma"
                 title="Idioma"
               >
@@ -691,58 +691,54 @@ const AdminPage = () => {
               <select
                 value={newCategory}
                 onChange={(e) => setNewCategory(e.target.value as "adult" | "child")}
-                className="px-3 py-2 rounded-xl border border-input bg-background font-body"
+                className="w-full px-3 py-2 rounded-xl border border-input bg-background font-body"
                 aria-label="Tipo"
                 title="Tipo"
               >
                 <option value="adult">Adulto</option>
                 <option value="child">Criança</option>
               </select>
-              <button onClick={addGuest} className="btn-primary py-2 text-sm">
+              <button onClick={addGuest} className="btn-primary w-full justify-center py-2 text-sm">
                 {t(lang, "addGuest")}
               </button>
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
-            <input ref={fileRef} type="file" accept=".csv,.txt" onChange={handleImport} className="hidden" />
-            <div className="flex flex-wrap gap-2">
-              <button onClick={() => fileRef.current?.click()} className="btn-secondary flex items-center gap-2 text-sm">
-                <Upload className="w-4 h-4" /> {t(lang, "import")}
-              </button>
-              <button
-                onClick={() => setBulkPending(guests.filter((g) => !g.invited))}
-                className="btn-whatsapp flex items-center gap-2 text-sm"
-              >
-                <Send className="w-4 h-4" /> {t(lang, "sendAll")}
-              </button>
-            </div>
-            <div className="flex flex-wrap gap-2 sm:justify-end">
-              <button
-                onClick={() => {
-                  const ok = window.confirm("Limpar apenas os convidados marcados como enviados?");
-                  if (!ok) return;
-                  clearInvitedGuests();
-                  setGuests(getGuests());
-                  setBulkPending((prev) => prev.filter((g) => !g.invited));
-                }}
-                className="btn-secondary flex items-center gap-2 text-sm"
-              >
-                <Trash2 className="w-4 h-4" /> {t(lang, "clearSentGuestList")}
-              </button>
-              <button
-                onClick={() => {
-                  const ok = window.confirm("Limpar toda a lista de convidados?");
-                  if (!ok) return;
-                  clearGuests();
-                  setGuests([]);
-                  setBulkPending([]);
-                }}
-                className="btn-secondary flex items-center gap-2 text-sm"
-              >
-                <Trash2 className="w-4 h-4" /> {t(lang, "clearGuestList")}
-              </button>
-            </div>
+          <input ref={fileRef} type="file" accept=".csv,.txt" onChange={handleImport} className="hidden" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 mb-4">
+            <button onClick={() => fileRef.current?.click()} className="btn-secondary w-full justify-center flex items-center gap-2 text-sm">
+              <Upload className="w-4 h-4" /> {t(lang, "import")}
+            </button>
+            <button
+              onClick={() => setBulkPending(guests.filter((g) => !g.invited))}
+              className="btn-whatsapp w-full justify-center flex items-center gap-2 text-sm"
+            >
+              <Send className="w-4 h-4" /> {t(lang, "sendAll")}
+            </button>
+            <button
+              onClick={() => {
+                const ok = window.confirm("Limpar apenas os convidados marcados como enviados?");
+                if (!ok) return;
+                clearInvitedGuests();
+                setGuests(getGuests());
+                setBulkPending((prev) => prev.filter((g) => !g.invited));
+              }}
+              className="btn-secondary w-full justify-center flex items-center gap-2 text-sm"
+            >
+              <Trash2 className="w-4 h-4" /> {t(lang, "clearSentGuestList")}
+            </button>
+            <button
+              onClick={() => {
+                const ok = window.confirm("Limpar toda a lista de convidados?");
+                if (!ok) return;
+                clearGuests();
+                setGuests([]);
+                setBulkPending([]);
+              }}
+              className="btn-secondary w-full justify-center flex items-center gap-2 text-sm"
+            >
+              <Trash2 className="w-4 h-4" /> {t(lang, "clearGuestList")}
+            </button>
           </div>
 
           {bulkPending.length > 0 && (
