@@ -575,7 +575,14 @@ const AdminPage = () => {
 
         {/* Guest Management */}
         <div className="card-baby">
-          <h2 className="text-xl font-bold font-body text-foreground mb-4">{t(lang, "guestList")}</h2>
+          <div className="flex items-end justify-between gap-3 mb-4">
+            <h2 className="text-xl font-bold font-body text-foreground">{t(lang, "guestList")}</h2>
+            <div className="text-xs text-muted-foreground font-body">
+              {lang === "pt"
+                ? `Enviados: ${guests.filter((g) => g.invited).length}/${guests.length}`
+                : `Sent: ${guests.filter((g) => g.invited).length}/${guests.length}`}
+            </div>
+          </div>
 
           <div className="space-y-2 mb-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
