@@ -170,7 +170,16 @@ const AdminPage = () => {
       if (rows.length === 0) return;
 
       const headerRow = rows[0].map((h) => normalizeHeader(h));
-      const hasHeader = headerRow.some((h) => h.includes("nome") || h === "name" || h.includes("telefone") || h.includes("phone"));
+      const hasHeader = headerRow.some(
+        (h) =>
+          h.includes("nome") ||
+          h === "name" ||
+          h.includes("telefone") ||
+          h.includes("phone") ||
+          h === "ddd" ||
+          h.includes("convidad") ||
+          h.includes("invitee"),
+      );
       const startIdx = hasHeader ? 1 : 0;
 
       const colIndex = (pred: (h: string) => boolean) => {
@@ -179,27 +188,82 @@ const AdminPage = () => {
       };
 
       const idxName = hasHeader ? colIndex((h) => h === "nome" || h.includes("nome") || h === "name") : 0;
+      const idxDDD = hasHeader ? colIndex((h) => h === "ddd" || h.includes("ddd")) : -1;
       const idxPhone = hasHeader ? colIndex((h) => h.includes("telefone") || h.includes("whatsapp") || h === "phone" || h.includes("phone")) : 1;
       const idxLang = hasHeader ? colIndex((h) => h === "lang" || h.includes("idioma") || h.includes("language")) : 2;
       const idxCategory = hasHeader ? colIndex((h) => h.includes("categoria") || h.includes("category") || h.includes("tipo") || h.includes("type")) : 3;
       const idxPeople = hasHeader ? colIndex((h) => h.includes("convidad") || h.includes("invitee") || h.includes("pessoa") || h.includes("people") || h.includes("famil")) : 4;
 
-      const list = rows
-        .slice(startIdx)
-        .map((cells) => {
-          const name = (cells[idxName] || "").trim();
-          const phone = (cells[idxPhone] || "").trim();
-          const langRaw = (cells[idxLang] || "").trim();
-          const categoryRaw = (cells[idxCategory] || "").trim();
-          const people = (cells[idxPeople] || "").trim();
+      const getCell = (cells: string[], idx: number) => (idx >= 0 ? (cells[idx] || "").trim() : "");
+      const splitNames = (value: string) =>
+        value
+          .split(/[\r\n,;|]+/g)
+          .map((s) => s.trim())
+          .filter((s) => s.length > 0);
 
-          const lang = langRaw.toLowerCase() === "en" || langRaw.toLowerCase().startsWith("ing") ? "en" : "pt";
-          const categoryLower = categoryRaw.toLowerCase();
-          const category = categoryLower.startsWith("crian") || categoryLower.startsWith("child") ? "child" : "adult";
+      const parseLang = (value: string): Lang => {
+        const v = value.trim().toLowerCase();
+        if (v === "en" || v.startsWith("ing")) return "en";
+        return "pt";
+      };
 
-          return { name, phone, people, lang, category };
-        })
-        .filter((g) => g.name && g.phone);
+      const parseCategory = (value: string): "adult" | "child" => {
+        const v = value.trim().toLowerCase();
+        if (v.startsWith("crian") || v.startsWith("child")) return "child";
+        return "adult";
+      };
+
+      const buildPhone = (dddRaw: string, phoneRaw: string) => {
+        const ddd = dddRaw.replace(/\D/g, "");
+        const phoneDigits = phoneRaw.replace(/\D/g, "");
+        if (!ddd) return phoneRaw.trim();
+        if (!phoneDigits) return ddd;
+        if (phoneDigits.length >= 10) return phoneDigits;
+        return `${ddd}${phoneDigits}`;
+      };
+
+      const list: Array<{ name: string; phone: string; people: string; lang: Lang; category: "adult" | "child" }> = [];
+      let current: { name: string; phone: string; lang: Lang; category: "adult" | "child" } | null = null;
+      let currentInvitees: string[] = [];
+
+      const flush = () => {
+        if (!current) return;
+        const people = currentInvitees.join("\n").trim();
+        if (current.name.trim() && current.phone.trim()) {
+          list.push({ ...current, people, lang: current.lang, category: current.category });
+        }
+        current = null;
+        currentInvitees = [];
+      };
+
+      for (const cells of rows.slice(startIdx)) {
+        const name = getCell(cells, idxName);
+        const ddd = getCell(cells, idxDDD);
+        const phone = getCell(cells, idxPhone);
+        const langRaw = getCell(cells, idxLang);
+        const categoryRaw = getCell(cells, idxCategory);
+        const peopleCell = getCell(cells, idxPeople);
+
+        const startsNewGuest = !!name || !!ddd || !!phone;
+
+        if (startsNewGuest) {
+          flush();
+          current = {
+            name,
+            phone: buildPhone(ddd, phone),
+            lang: parseLang(langRaw),
+            category: parseCategory(categoryRaw),
+          };
+          if (peopleCell) currentInvitees.push(...splitNames(peopleCell));
+          continue;
+        }
+
+        if (current && peopleCell) {
+          currentInvitees.push(...splitNames(peopleCell));
+        }
+      }
+
+      flush();
       importGuests(list);
       setGuests(getGuests());
     };
