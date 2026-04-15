@@ -95,13 +95,24 @@ const AdminPage = () => {
 
   const sendInvite = (guest: GuestEntry) => {
     const gLang: Lang = guest.lang;
-    const people = (guest.people || "").trim() || guest.name;
-    const deadline = gLang === "pt" ? "5 de maio" : "May 5";
-    const msg = t(gLang, "inviteMsg")
+    const rawInvitees = (guest.people || "").trim();
+    const invitees = rawInvitees
+      ? rawInvitees
+          .split(/[\r\n,;]+/g)
+          .map((s) => s.trim())
+          .filter((s) => s.length > 0)
+      : [guest.name];
+    const inviteesList = invitees.map((n) => `- ${n}`).join("\n");
+    const key = invitees.length > 1 ? "inviteMsgMulti" : "inviteMsgSingle";
+
+    const msg = t(gLang, key)
+      .replace("{inviteesHeader}", t(gLang, "inviteesHeader"))
+      .replace("{inviteesList}", inviteesList)
       .replace("{name}", guest.name)
-      .replace("{people}", people)
-      .replace("{deadline}", deadline)
-      .replace("{link}", `${EVENT_CONFIG.siteUrl}?lang=${gLang}&name=${encodeURIComponent(guest.name)}`);
+      .replace(
+        "{link}",
+        `${EVENT_CONFIG.siteUrl}/${gLang}?name=${encodeURIComponent(guest.name)}${invitees.length > 1 ? `&invitees=${encodeURIComponent(invitees.join("|"))}` : ""}`,
+      );
     const url = `https://wa.me/${normalizeWhatsAppNumber(guest.phone)}?text=${encodeURIComponent(msg)}`;
     window.open(url, "_blank");
     markInvited(guest.id);
@@ -404,12 +415,13 @@ const AdminPage = () => {
               className="flex-1 px-4 py-2 rounded-xl border border-input bg-background font-body focus:outline-none focus:ring-2 focus:ring-primary"
               maxLength={20}
             />
-            <input
+            <textarea
               value={newPeople}
               onChange={(e) => setNewPeople(e.target.value)}
-              placeholder={t(lang, "invitees")}
-              className="flex-1 px-4 py-2 rounded-xl border border-input bg-background font-body focus:outline-none focus:ring-2 focus:ring-primary"
-              maxLength={200}
+              placeholder={lang === "pt" ? "Convidados (um por linha)" : "Invitees (one per line)"}
+              className="flex-1 px-4 py-2 rounded-xl border border-input bg-background font-body focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+              rows={2}
+              maxLength={500}
             />
             <select
               value={newLang}

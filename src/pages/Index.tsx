@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useLocation, useSearchParams } from "react-router-dom";
 import { Lang } from "@/lib/i18n";
 import Hero from "@/components/Hero";
 import Countdown from "@/components/Countdown";
@@ -11,8 +11,10 @@ import Fogueira from "@/components/Fogueira";
 import BackgroundMusic from "@/components/BackgroundMusic";
 
 const Index = () => {
+  const location = useLocation();
   const [searchParams] = useSearchParams();
-  const initialLang = (searchParams.get("lang") as Lang) || "pt";
+  const langFromPath = location.pathname.toLowerCase().startsWith("/en") ? "en" : "pt";
+  const initialLang = (searchParams.get("lang") as Lang) || (langFromPath as Lang) || "pt";
   const initialName = searchParams.get("name") || "";
   const [lang, setLang] = useState<Lang>(initialLang);
 
