@@ -296,16 +296,82 @@ const AdminPage = () => {
     setGuests(getGuests());
   };
 
-  const exportCSV = () => {
-    const header = "Nome,Comparece,Adultos,Crianças,Telefone,Observações,Data\n";
-    const rows = rsvps
-      .map((r) => `"${r.name}",${r.attending ? "Sim" : "Não"},${r.adults},${r.children},"${r.phone}","${r.notes}","${r.createdAt}"`)
-      .join("\n");
-    const blob = new Blob([header + rows], { type: "text/csv" });
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = "rsvp_respostas.csv";
-    a.click();
+  const exportPDF = () => {
+    const escapeHtml = (v: string) =>
+      v
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+
+    const rowsHtml = rsvps
+      .map((r) => {
+        const created = r.createdAt ? new Date(r.createdAt).toLocaleString() : "";
+        return `
+          <tr>
+            <td>${escapeHtml(r.name || "")}</td>
+            <td style="text-align:center">${r.attending ? "✅" : "❌"}</td>
+            <td style="text-align:right">${Number.isFinite(r.adults) ? r.adults : ""}</td>
+            <td style="text-align:right">${Number.isFinite(r.children) ? r.children : ""}</td>
+            <td>${escapeHtml(r.phone || "")}</td>
+            <td>${escapeHtml(r.notes || "")}</td>
+            <td>${escapeHtml(created)}</td>
+          </tr>
+        `;
+      })
+      .join("");
+
+    const title = `RSVPs - ${EVENT_CONFIG.eventName}`;
+    const html = `<!doctype html>
+      <html>
+        <head>
+          <meta charset="utf-8" />
+          <meta name="viewport" content="width=device-width, initial-scale=1" />
+          <title>${escapeHtml(title)}</title>
+          <style>
+            body { font-family: Arial, sans-serif; padding: 24px; color: #111; }
+            h1 { font-size: 18px; margin: 0 0 8px; }
+            .meta { font-size: 12px; color: #444; margin-bottom: 16px; }
+            table { width: 100%; border-collapse: collapse; font-size: 12px; }
+            th, td { border: 1px solid #ddd; padding: 8px; vertical-align: top; }
+            th { background: #f5f5f5; text-align: left; }
+            @media print {
+              body { padding: 0; }
+            }
+          </style>
+        </head>
+        <body>
+          <h1>${escapeHtml(title)}</h1>
+          <div class="meta">Gerado em ${escapeHtml(new Date().toLocaleString())} · Total: ${rsvps.length}</div>
+          <table>
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th>Comparece</th>
+                <th>Adultos</th>
+                <th>Crianças</th>
+                <th>Telefone</th>
+                <th>Observações</th>
+                <th>Data</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rowsHtml}
+            </tbody>
+          </table>
+        </body>
+      </html>`;
+
+    const w = window.open("", "_blank");
+    if (!w) return;
+    w.document.open();
+    w.document.write(html);
+    w.document.close();
+    w.focus();
+    w.onload = () => {
+      w.print();
+    };
   };
 
   const startEditRsvp = (r: RSVPEntry) => {
@@ -411,7 +477,7 @@ const AdminPage = () => {
         <div className="card-baby mb-8">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-bold font-body text-foreground">RSVPs ({rsvps.length})</h2>
-            <button onClick={exportCSV} className="btn-secondary flex items-center gap-2 text-sm">
+            <button onClick={exportPDF} className="btn-secondary flex items-center gap-2 text-sm">
               <Download className="w-4 h-4" /> {t(lang, "export")}
             </button>
           </div>
@@ -596,7 +662,7 @@ const AdminPage = () => {
               <input
                 value={newPhone}
                 onChange={(e) => setNewPhone(e.target.value)}
-                placeholder={lang === "pt" ? "+55 21 99999-9999 (ou +1 917 000-0000)" : "+1 917 000-0000 (or +55 21 99999-9999)"}
+                placeholder={lang === "pt" ? "+1 917 000-0000 (com DDI)" : "+1 917 000-0000 (include country code)"}
                 className="w-full px-4 py-2 rounded-xl border border-input bg-background font-body focus:outline-none focus:ring-2 focus:ring-primary"
                 maxLength={30}
               />
@@ -638,41 +704,45 @@ const AdminPage = () => {
             </div>
           </div>
 
-          <div className="flex gap-2 mb-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
             <input ref={fileRef} type="file" accept=".csv,.txt" onChange={handleImport} className="hidden" />
-            <button onClick={() => fileRef.current?.click()} className="btn-secondary flex items-center gap-2 text-sm">
-              <Upload className="w-4 h-4" /> {t(lang, "import")}
-            </button>
-            <button
-              onClick={() => setBulkPending(guests.filter((g) => !g.invited))}
-              className="btn-whatsapp flex items-center gap-2 text-sm"
-            >
-              <Send className="w-4 h-4" /> {t(lang, "sendAll")}
-            </button>
-            <button
-              onClick={() => {
-                const ok = window.confirm("Limpar toda a lista de convidados?");
-                if (!ok) return;
-                clearGuests();
-                setGuests([]);
-                setBulkPending([]);
-              }}
-              className="btn-secondary flex items-center gap-2 text-sm"
-            >
-              <Trash2 className="w-4 h-4" /> {t(lang, "clearGuestList")}
-            </button>
-            <button
-              onClick={() => {
-                const ok = window.confirm("Limpar apenas os convidados marcados como enviados?");
-                if (!ok) return;
-                clearInvitedGuests();
-                setGuests(getGuests());
-                setBulkPending((prev) => prev.filter((g) => !g.invited));
-              }}
-              className="btn-secondary flex items-center gap-2 text-sm"
-            >
-              <Trash2 className="w-4 h-4" /> {t(lang, "clearSentGuestList")}
-            </button>
+            <div className="flex flex-wrap gap-2">
+              <button onClick={() => fileRef.current?.click()} className="btn-secondary flex items-center gap-2 text-sm">
+                <Upload className="w-4 h-4" /> {t(lang, "import")}
+              </button>
+              <button
+                onClick={() => setBulkPending(guests.filter((g) => !g.invited))}
+                className="btn-whatsapp flex items-center gap-2 text-sm"
+              >
+                <Send className="w-4 h-4" /> {t(lang, "sendAll")}
+              </button>
+            </div>
+            <div className="flex flex-wrap gap-2 sm:justify-end">
+              <button
+                onClick={() => {
+                  const ok = window.confirm("Limpar apenas os convidados marcados como enviados?");
+                  if (!ok) return;
+                  clearInvitedGuests();
+                  setGuests(getGuests());
+                  setBulkPending((prev) => prev.filter((g) => !g.invited));
+                }}
+                className="btn-secondary flex items-center gap-2 text-sm"
+              >
+                <Trash2 className="w-4 h-4" /> {t(lang, "clearSentGuestList")}
+              </button>
+              <button
+                onClick={() => {
+                  const ok = window.confirm("Limpar toda a lista de convidados?");
+                  if (!ok) return;
+                  clearGuests();
+                  setGuests([]);
+                  setBulkPending([]);
+                }}
+                className="btn-secondary flex items-center gap-2 text-sm"
+              >
+                <Trash2 className="w-4 h-4" /> {t(lang, "clearGuestList")}
+              </button>
+            </div>
           </div>
 
           {bulkPending.length > 0 && (

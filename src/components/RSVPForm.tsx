@@ -160,7 +160,7 @@ const RSVPForm = ({ lang, initialName }: RSVPFormProps) => {
             value={form.phone}
             onChange={(e) => setForm({ ...form, phone: e.target.value })}
             className={`w-full px-4 py-3 rounded-lg border bg-background font-body focus:outline-none focus:ring-2 focus:ring-primary ${errors.phone ? "border-destructive" : "border-input"}`}
-            placeholder={lang === "pt" ? "+55 21 99999-9999 (ou +1 917 000-0000)" : "+1 917 000-0000 (or +55 21 99999-9999)"}
+            placeholder={lang === "pt" ? "+1 917 000-0000 (com DDI)" : "+1 917 000-0000 (include country code)"}
             maxLength={30}
           />
           {errors.phone && <p className="text-destructive text-xs mt-1">{t(lang, "required")}</p>}
