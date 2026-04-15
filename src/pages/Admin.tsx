@@ -323,6 +323,10 @@ const AdminPage = () => {
       .join("");
 
     const title = `RSVPs - ${EVENT_CONFIG.eventName}`;
+    const metaLabel =
+      lang === "pt"
+        ? `Gerado em ${escapeHtml(new Date().toLocaleString())} · Total: ${rsvps.length} · Confirmados: ${confirmed.length} · Adultos: ${totalAdults} · Crianças: ${totalChildren}`
+        : `Generated at ${escapeHtml(new Date().toLocaleString())} · Total: ${rsvps.length} · Confirmed: ${confirmed.length} · Adults: ${totalAdults} · Children: ${totalChildren}`;
     const html = `<!doctype html>
       <html>
         <head>
@@ -343,7 +347,7 @@ const AdminPage = () => {
         </head>
         <body>
           <h1>${escapeHtml(title)}</h1>
-          <div class="meta">Gerado em ${escapeHtml(new Date().toLocaleString())} · Total: ${rsvps.length}</div>
+          <div class="meta">${metaLabel}</div>
           <table>
             <thead>
               <tr>
